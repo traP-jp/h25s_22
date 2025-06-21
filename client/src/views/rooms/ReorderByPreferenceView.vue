@@ -1,39 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-white shadow-sm">
-      <div class="flex items-center justify-between p-4">
-        <div class="w-6 h-6 bg-blue-500 rounded"></div>
-        <button class="p-2">
-          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
     <!-- Main Content -->
     <div class="px-4 py-8">
       <h1 class="text-xl font-bold text-gray-800 mb-8 text-center">候補地を希望順に並び替え</h1>
 
       <!-- Priority Section -->
       <div class="mb-6">
-        <div class="flex items-center mb-4">
-          <div class="w-5 h-5 bg-green-500 rounded mr-2 flex items-center justify-center">
-            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <span class="text-gray-700 font-medium">あなたの優先順位</span>
-        </div>
 
         <!-- Location List -->
         <div class="space-y-3">
@@ -99,15 +71,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Bottom Button -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
-      <button
-        class="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-      >
-        100人/200人
-      </button>
     </div>
   </div>
 </template>
