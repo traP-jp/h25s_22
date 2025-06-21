@@ -28,8 +28,8 @@ function sharelink() {}
         </div>
       </div>
       <div class="flex gap-3 flex-wrap justify-center items-center">
-        <BasicButton text="ホームに戻る" @click="backhome" />
-        <BasicButton text="リンクをシェア" variant="secondary" @click="sharelink" />
+        <BasicButton text="ホームに戻る" left-icon="home_inv" @click="backhome" />
+        <BasicButton text="リンクをシェア" variant="secondary" left-icon="link-variant" @click="sharelink" />
       </div>
     </div>
   </div>
