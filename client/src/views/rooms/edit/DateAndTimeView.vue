@@ -147,7 +147,6 @@ const handleNext = () => {
 </template>
 
 <style scoped>
-
 input[type='date'],
 input[type='time'] {
   color: transparent;
@@ -157,6 +156,6 @@ input[type='date']:focus,
 input[type='time']:focus,
 input[type='date']:valid,
 input[type='time']:valid {
-  color: #374151; 
+  color: #374151;
 }
 </style>
