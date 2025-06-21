@@ -7,12 +7,11 @@
     ]"
     :disabled="disabled"
   >
-    <div v-if="leftIcon" class="w-6 h-6 relative">
-      <div class="w-6 h-6 left-0 top-0 absolute bg-zinc-300"></div>
-      <div :class="[
-        'left-[3px] top-[3px] absolute',
-        variant === 'primary' ? 'w-4 h-4 bg-white' : 'w-4 h-4 bg-sky-400'
-      ]"></div>
+    <div v-if="leftIcon" class="w-6 h-6 flex items-center justify-center">
+      <div
+        v-html="getIconSvg(leftIcon)"
+        class="w-6 h-6"
+      ></div>
     </div>
 
     <div class="px-2 flex justify-center items-center">
@@ -24,18 +23,18 @@
       </div>
     </div>
 
-    <div v-if="rightIcon" class="w-6 h-6 relative">
-      <div class="w-6 h-6 left-0 top-0 absolute bg-zinc-300"></div>
-      <div :class="[
-        'left-[5px] top-[5px] absolute',
-        variant === 'primary' ? 'w-3.5 h-3.5 bg-white' : 'w-3.5 h-3.5 bg-sky-400'
-      ]"></div>
+    <!-- Right Icon -->
+    <div v-if="rightIcon" class="w-6 h-6 flex items-center justify-center">
+      <div
+        v-html="getIconSvg(rightIcon)"
+        class="w-6 h-6"
+      ></div>
     </div>
   </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 // Props definition
 const props = defineProps({
@@ -52,12 +51,12 @@ const props = defineProps({
     default: 'large'
   },
   leftIcon: {
-    type: Boolean,
-    default: false
+    type: String,
+    default: ''
   },
   rightIcon: {
-    type: Boolean,
-    default: false
+    type: String,
+    default: ''
   },
   disabled: {
     type: Boolean,
@@ -65,12 +64,44 @@ const props = defineProps({
   }
 })
 
-// Computed classes based on size
+const leftIconSvg = ref('')
+const rightIconSvg = ref('')
+
+const loadSvg = async (iconName: string): Promise<string> => {
+  if (!iconName) return ''
+  try {
+    const response = await fetch(new URL(`/src/assets/icons/${iconName}.svg`, import.meta.url).href)
+    let svgContent = await response.text()
+
+    const fillColor = props.variant === 'primary' ? '#ffffff' : '#38A3EE'
+    svgContent = svgContent.replace(/fill="[^"]*"/g, `fill="${fillColor}"`)
+
+    return svgContent
+  } catch (error) {
+    console.error(`Failed to load icon: ${iconName}`, error)
+    return ''
+  }
+}
+
+const getIconSvg = (iconName: string) => {
+  if (iconName === props.leftIcon) return leftIconSvg.value
+  if (iconName === props.rightIcon) return rightIconSvg.value
+  return ''
+}
+
+onMounted(async () => {
+  if (props.leftIcon) {
+    leftIconSvg.value = await loadSvg(props.leftIcon)
+  }
+  if (props.rightIcon) {
+    rightIconSvg.value = await loadSvg(props.rightIcon)
+  }
+})
+
 const sizeClasses = computed(() => {
   return props.size === 'large' ? 'w-75' : 'w-36'
 })
 
-// Computed classes based on variant
 const variantClasses = computed(() => {
   const baseClasses = props.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
 
@@ -83,7 +114,6 @@ const variantClasses = computed(() => {
   }
 })
 
-// Computed text color classes
 const textColorClasses = computed(() => {
   return props.variant === 'primary' ? 'text-white' : 'text-sky-400'
 })
