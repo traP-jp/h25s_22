@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type (
@@ -47,6 +48,28 @@ func (r *Repository) CreatePlaceVote(ctx context.Context, params CreatePlaceVote
 	}
 
 	return voteID, nil
+}
+
+func (r *Repository) CreatePlaceVotes(ctx context.Context, params []CreatePlaceVoteParams) ([]uuid.UUID, error) {
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return nil, fmt.Errorf("faild start transaction: %w", err)
+	}
+	placeVoteIDs := lo.Times(len(params), func(_ int) uuid.UUID {
+		return uuid.New()
+	})
+	for i, param := range params {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO placeVotes (id, user_id, place_id, rank) VALUES (?, ?, ?, ?)", placeVoteIDs[i], param.UserID, param.PlaceID, param.Rank); err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("faild insert timeVote: %w", err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("faild commit transaction: %w", err)
+	}
+
+	return placeVoteIDs, nil
 }
 
 func (r *Repository) GetPlaceVote(ctx context.Context, voteID uuid.UUID) (*placeVote, error) {
