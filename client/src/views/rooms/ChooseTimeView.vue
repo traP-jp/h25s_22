@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+// import { useRoute } from 'vue-router'
 
-const route = useRoute()
+// const route = useRoute()
 // 時間選択ページのロジックをここに追加
 </script>
