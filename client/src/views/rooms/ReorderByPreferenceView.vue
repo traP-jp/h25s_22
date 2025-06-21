@@ -17,7 +17,7 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <div
-                  :class="`w-8 h-8 ${location.color} rounded-full flex items-center justify-center text-white font-bold text-sm mr-4`"
+                  :class="`w-8 h-8 ${getRankColor(index + 1)} rounded-full flex items-center justify-center text-white font-bold text-sm mr-4`"
                 >
                   {{ index + 1 }}
                 </div>
@@ -82,16 +82,25 @@ interface Location {
   id: number
   name: string
   distance: string
-  color: string
 }
 
 const locations = ref<Location[]>([
-  { id: 1, name: 'カフェ SUNNY', distance: '渋谷駅徒歩5分', color: 'bg-yellow-500' },
-  { id: 2, name: 'イタリアン Bella Vista', distance: '渋谷駅徒歩7分', color: 'bg-gray-400' },
-  { id: 3, name: 'ゲームセンター JOYPOLIS', distance: '渋谷駅徒歩2分', color: 'bg-orange-500' },
-  { id: 4, name: 'ボウリング場 STRIKE', distance: '渋谷駅徒歩10分', color: 'bg-blue-500' },
-  { id: 5, name: '居酒屋 みんなの家', distance: '渋谷駅徒歩3分', color: 'bg-purple-500' },
+  { id: 1, name: 'カフェ SUNNY', distance: '渋谷駅徒歩5分' },
+  { id: 2, name: 'イタリアン Bella Vista', distance: '渋谷駅徒歩7分' },
+  { id: 3, name: 'ゲームセンター JOYPOLIS', distance: '渋谷駅徒歩2分' },
+  { id: 4, name: 'ボウリング場 STRIKE', distance: '渋谷駅徒歩10分' },
+  { id: 5, name: '居酒屋 みんなの家', distance: '渋谷駅徒歩3分' },
 ])
+
+// 順位に基づいて色を決定する関数
+const getRankColor = (rank: number): string => {
+  switch (rank) {
+    case 1: return 'bg-yellow-500'    // 1位: 金色
+    case 2: return 'bg-gray-400'      // 2位: 銀色
+    case 3: return 'bg-orange-600'    // 3位: 銅色
+    default: return 'bg-blue-500'     // それ以外: 青色
+  }
+}
 
 const moveItem = (index: number, direction: 'up' | 'down') => {
   const newLocations = [...locations.value]
