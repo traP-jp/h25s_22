@@ -15,6 +15,14 @@ func main() {
 	// middlewares
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
+	e.Use(middleware.CORS())
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:5173"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.PATCH, echo.OPTIONS},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowCredentials: true,
+	}))
 
 	// connect to and migrate database
 	db, err := database.Setup(config.MySQL())
