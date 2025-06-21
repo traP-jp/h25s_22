@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,36 +11,45 @@ import (
 	"github.com/samber/lo"
 	"googlemaps.github.io/maps"
 )
+
 type AskSearch struct {
-	Location  maps.LatLng `json:"location"`
-	Name string `json:"name"`
-	PlaceID string `json:"placeID"`
-	Radius 	int `json:"radius"`
-	Language string `json:"language"`
-	Type string `json:"type"`
-	MaxSize int `json:"maxSize"`
-	Address string `json:"address"`
+	Location maps.LatLng `json:"location"`
+	Name     string      `json:"name"`
+	PlaceID  string      `json:"placeID"`
+	Radius   int         `json:"radius"`
+	Language string      `json:"language"`
+	Type     string      `json:"type"`
+	MaxSize  int         `json:"maxSize"`
+	Address  string      `json:"address"`
 }
 
-type GetSearch struct{
-	Name string `json:"name"`
-	PlaceID string `json:"placeID"`
-	Location maps.LatLng `json:"location"`
-	PhotoReference maps.Photo `json:"photoReference"`
-	PriceLevel int `json:"priceLevel"`
-	Address string `json:"address"`
+type GetSearch struct {
+	Name           string      `json:"name"`
+	PlaceID        string      `json:"placeID"`
+	Location       maps.LatLng `json:"location"`
+	PhotoReference string      `json:"photoReference"`
+	PriceLevel     int         `json:"priceLevel"`
+	Rating         float32     `json:"rating"`
+	Address        string      `json:"address"`
+}
+
+type PlaceDetail struct {
+	Name       string  `json:"name"`
+	Rate       float32 `json:"rate"`
+	PriceLevel int     `json:"pricelevel"`
+	Address    string  `json:"address"`
 }
 
 func (h *Handler) GetSearch(c echo.Context) error {
 	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
-	if !ok  {
-		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	if !ok {
+		return c.String(http.StatusInternalServerError, "Not Fund APIKey")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 
 	nearRequest := &AskSearch{
-		Name: c.QueryParam("name"),
-		Type: c.QueryParam("type"),
+		Name:     c.QueryParam("name"),
+		Type:     c.QueryParam("type"),
 		Language: c.QueryParam("language"),
 	}
 
@@ -70,51 +80,46 @@ func (h *Handler) GetSearch(c echo.Context) error {
 	nameSearch := maps.TextSearchRequest{
 		Query: nearRequest.Name,
 	}
-	response,err := client.TextSearch(context.Background(),&nameSearch)
+	response, err := client.TextSearch(context.Background(), &nameSearch)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
+		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
 	nearRequest.Location = maps.LatLng{
 		Lat: response.Results[0].Geometry.Location.Lat,
 		Lng: response.Results[0].Geometry.Location.Lng,
 	}
 	nearRequestMap := maps.NearbySearchRequest{
-		Name: nearRequest.Name,
-		Type: maps.PlaceType(nearRequest.Type),
+		Name:     nearRequest.Name,
+		Type:     maps.PlaceType(nearRequest.Type),
 		Location: &nearRequest.Location,
-		Radius: uint(nearRequest.Radius),
+		Radius:   uint(nearRequest.Radius),
 		Language: nearRequest.Language,
 	}
 
-
-
-	route, err := client.NearbySearch(context.Background(),&nearRequestMap)
+	route, err := client.NearbySearch(context.Background(), &nearRequestMap)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
-	search := route.Results[:nearRequest.MaxSize]
-	getSearch := lo.Map(search, func(x maps.PlacesSearchResult, index int) GetSearch {
+	searchResults := route.Results[:nearRequest.MaxSize]
+	getSearch := lo.Map(searchResults, func(result maps.PlacesSearchResult, index int) GetSearch {
 		return GetSearch{
-			Name: x.Name,
-			PlaceID: x.PlaceID,
-			Location:x.Geometry.Location,
-			PhotoReference: x.Photos[0],
-			PriceLevel: x.PriceLevel,
-			Address: x.FormattedAddress,
-
+			Name:           result.Name,
+			PlaceID:        result.PlaceID,
+			Location:       result.Geometry.Location,
+			PhotoReference: result.Photos[0].PhotoReference,
+			PriceLevel:     result.PriceLevel,
+			Rating:         result.Rating,
+			Address:        result.Vicinity,
 		}
 	})
-
 
 	return c.JSON(http.StatusOK, getSearch)
 }
 
-
-
 func (h *Handler) GetPhoto(c echo.Context) error {
 	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
-	if !ok  {
-		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	if !ok {
+		return c.String(http.StatusInternalServerError, "Not Fund APIKey")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 
@@ -148,22 +153,25 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 
 	photo, err := client.PlacePhoto(context.Background(), photoReq)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
+		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
-	return c.JSON(http.StatusOK,photo)
-}
-type GetDetail struct{
-	Name string `json:"name"`
-	Rate float32 `json:"rate"`
-	PriceLevel int `json:"pricelevel"`
-	Address string `json:"address"`
 
-
+	if photo.Data != nil {
+		defer photo.Data.Close()
+		imageData, err := io.ReadAll(photo.Data)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to read image data")
+		}
+		return c.Blob(http.StatusOK, photo.ContentType, imageData)
+	} else {
+		return echo.NewHTTPError(http.StatusNotFound, "photo not found")
+	}
 }
+
 func (h *Handler) GetPlace(c echo.Context) error {
 	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
-	if !ok  {
-		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	if !ok {
+		return c.String(http.StatusInternalServerError, "Not Fund APIKey")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 	placeId := c.Param("placeId")
@@ -171,15 +179,15 @@ func (h *Handler) GetPlace(c echo.Context) error {
 		PlaceID:  placeId,
 		Language: "ja",
 	}
-	detail, errors := client.PlaceDetails(context.Background(),detailReq)
-	if err != nil || errors != nil{
+	detail, errors := client.PlaceDetails(context.Background(), detailReq)
+	if err != nil || errors != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
-	getDetail := GetDetail{
-		Name: detail.Name,
-		Rate: detail.Rating,
+	placeDetail := PlaceDetail{
+		Name:       detail.Name,
+		Rate:       detail.Rating,
 		PriceLevel: detail.PriceLevel,
-		Address: detail.FormattedAddress,
+		Address:    detail.FormattedAddress,
 	}
-	return c.JSON(http.StatusOK, getDetail)
+	return c.JSON(http.StatusOK, placeDetail)
 }
