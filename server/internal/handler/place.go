@@ -66,8 +66,8 @@ func (h *Handler) GetSearch(c echo.Context) error {
 	nameSearch := maps.TextSearchRequest{
 		Query: nearRequest.Name,
 	}
-	response,erro := client.TextSearch(context.Background(),&nameSearch)
-	if erro != nil {
+	response,err := client.TextSearch(context.Background(),&nameSearch)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
 	}
 	nearRequest.Location = maps.LatLng{
