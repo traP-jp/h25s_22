@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strconv"
+
 	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
 	"googlemaps.github.io/maps"
@@ -12,22 +14,20 @@ type AskSearch struct {
 	Location  maps.LatLng `json:"location"`
 	Name string `json:"name"`
 	PlaceID string `json:"placeID"`
-	Radius 	float64 `json:"radius"`
+	Radius 	int `json:"radius"`
 	Language string `json:"language"`
 	Type string `json:"type"`
 	MaxSize int `json:"maxSize"`
 	Address string `json:"address"`
-	
 }
 
 type GetSearch struct{
 	Name string `json:"name"`
-	PlaceID string `json:"placeID`
+	PlaceID string `json:"placeID"`
 	Location maps.LatLng `json:"location"`
-	PhotoReference maps.Photo `json:"photoRefarence"`
+	PhotoReference maps.Photo `json:"photoReference"`
 	PriceLevel int `json:"priceLevel"`
 	Address string `json:"address"`
-
 }
 
 func (h *Handler) GetSearch(c echo.Context) error {
@@ -36,13 +36,38 @@ func (h *Handler) GetSearch(c echo.Context) error {
 		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(api_key))
-	nearRequest := &AskSearch{}
-	errors := c.Bind(nearRequest)
+
+	nearRequest := &AskSearch{
+		Name: c.QueryParam("name"),
+		Type: c.QueryParam("type"),
+		Language: c.QueryParam("language"),
+	}
+
+	if radiusStr := c.QueryParam("radius"); radiusStr != "" {
+		if radius, err := strconv.Atoi(radiusStr); err == nil {
+			nearRequest.Radius = radius
+		} else {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid radius parameter")
+		}
+	}
+
+	if maxSizeStr := c.QueryParam("maxSize"); maxSizeStr != "" {
+		if maxSize, err := strconv.Atoi(maxSizeStr); err == nil {
+			nearRequest.MaxSize = maxSize
+		} else {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid maxSize parameter")
+		}
+	}
+
+	if nearRequest.Name == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "name parameter is required")
+	}
+
 	nameSearch := maps.TextSearchRequest{
 		Query: nearRequest.Name,
 	}
 	response,erro := client.TextSearch(context.Background(),&nameSearch)
-	if erro != nil {		
+	if erro != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
 	}
 	nearRequest.Location = maps.LatLng{
@@ -60,7 +85,7 @@ func (h *Handler) GetSearch(c echo.Context) error {
 
 
 	route, err := client.NearbySearch(context.Background(),&nearRequestMap)
-	if err != nil || errors != nil{
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
 	search := route.Results[:nearRequest.MaxSize]
@@ -88,12 +113,31 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(api_key))
-	photoReq := &maps.PlacePhotoRequest{}
-	errors := c.Bind(photoReq)
+
+	photoReq := &maps.PlacePhotoRequest{
+		PhotoReference: c.QueryParam("photoReference"),
+	}
+
+	if maxWidthStr := c.QueryParam("maxWidth"); maxWidthStr != "" {
+		if maxWidth, err := strconv.Atoi(maxWidthStr); err == nil {
+			photoReq.MaxWidth = uint(maxWidth)
+		}
+	}
+
+	if maxHeightStr := c.QueryParam("maxHeight"); maxHeightStr != "" {
+		if maxHeight, err := strconv.Atoi(maxHeightStr); err == nil {
+			photoReq.MaxHeight = uint(maxHeight)
+		}
+	}
+
+	if photoReq.PhotoReference == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "photoReference parameter is required")
+	}
+
 	photo, err := client.PlacePhoto(context.Background(), photoReq)
-	if err != nil || errors != nil {
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
-	} 
+	}
 	return c.JSON(http.StatusOK,photo)
 }
 type GetDetail struct{
