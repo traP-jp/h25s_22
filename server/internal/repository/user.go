@@ -30,6 +30,15 @@ func (r *Repository) GetUsers(ctx context.Context) ([]*User, error) {
 	return users, nil
 }
 
+func (r *Repository) GetUsersByRoomID(ctx context.Context, roomID uuid.UUID) ([]*User, error) {
+	users := []*User{}
+	if err := r.db.SelectContext(ctx, &users, "SELECT * FROM users WHERE room_id = ?", roomID); err != nil {
+		return nil, fmt.Errorf("select users by roomID: %w", err)
+	}
+
+	return users, nil
+}
+
 func (r *Repository) CreateUser(ctx context.Context, params CreateUserParams) (uuid.UUID, error) {
 	userID := uuid.New()
 	if _, err := r.db.ExecContext(ctx, "INSERT INTO users (id, room_id, name) VALUES (?, ?, ?)", userID, params.RoomID, params.Name); err != nil {

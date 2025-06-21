@@ -23,27 +23,35 @@ type (
 	}
 )
 
-func (r *Repository) GetVotes(ctx context.Context) ([]*placeVote, error) {
+func (r *Repository) GetPlaceVotes(ctx context.Context) ([]*placeVote, error) {
 	placeVotes := []*placeVote{}
-	if err := r.db.SelectContext(ctx, &placeVotes, "SELECT * FROM placeVote"); err != nil {
-		return nil, fmt.Errorf("select placeVote: %w", err)
+	if err := r.db.SelectContext(ctx, &placeVotes, "SELECT * FROM placeVotes"); err != nil {
+		return nil, fmt.Errorf("select placeVotes: %w", err)
 	}
 
 	return placeVotes, nil
 }
 
-func (r *Repository) CreateVote(ctx context.Context, params CreatePlaceVoteParams) (uuid.UUID, error) {
+func (r *Repository) GetPlaceVotesByUserID(ctx context.Context, userID uuid.UUID) ([]*placeVote, error) {
+	placeVotes := []*placeVote{}
+	if err := r.db.SelectContext(ctx, &placeVotes, "SELECT * FROM placeVotes WHERE user_id = ?", userID); err != nil {
+		return nil, fmt.Errorf("select placeVotes by userID: %w", err)
+	}
+	return placeVotes, nil
+}
+
+func (r *Repository) CreatePlaceVote(ctx context.Context, params CreatePlaceVoteParams) (uuid.UUID, error) {
 	voteID := uuid.New()
-	if _, err := r.db.ExecContext(ctx, "INSERT INTO placeVote (id, user_id, place_id, rank) VALUES (?, ?, ?, ?)", voteID, params.UserID, params.PlaceID, params.Rank); err != nil {
+	if _, err := r.db.ExecContext(ctx, "INSERT INTO placeVotes (id, user_id, place_id, rank) VALUES (?, ?, ?, ?)", voteID, params.UserID, params.PlaceID, params.Rank); err != nil {
 		return uuid.Nil, fmt.Errorf("insert vote: %w", err)
 	}
 
 	return voteID, nil
 }
 
-func (r *Repository) GetVote(ctx context.Context, voteID uuid.UUID) (*placeVote, error) {
+func (r *Repository) GetPlaceVote(ctx context.Context, voteID uuid.UUID) (*placeVote, error) {
 	vote := &placeVote{}
-	if err := r.db.GetContext(ctx, vote, "SELECT * FROM placeVote WHERE id = ?", voteID); err != nil {
+	if err := r.db.GetContext(ctx, vote, "SELECT * FROM placeVotes WHERE id = ?", voteID); err != nil {
 		return nil, fmt.Errorf("select vote: %w", err)
 	}
 

@@ -30,6 +30,14 @@ func (r *Repository) GetPlaces(ctx context.Context) ([]*Place, error) {
 	return places, nil
 }
 
+func (r *Repository) GetPlacesByRoomID(ctx context.Context, roomID uuid.UUID) ([]*Place, error) {
+	places := []*Place{}
+	if err := r.db.SelectContext(ctx, &places, "SELECT * FROM places WHERE room_id = ?", roomID); err != nil {
+		return nil, fmt.Errorf("select places by roomID: %w", err)
+	}
+	return places, nil
+}
+
 func (r *Repository) CreatePlace(ctx context.Context, params CreatePlaceParams) (uuid.UUID, error) {
 	PlaceID := uuid.New()
 	if _, err := r.db.ExecContext(ctx, "INSERT INTO places (id, room_id, google_place_id) VALUES (?, ?, ?)", PlaceID, params.RoomID, params.GooglePlaceID); err != nil {
