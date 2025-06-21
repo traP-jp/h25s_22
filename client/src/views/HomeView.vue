@@ -9,6 +9,8 @@ function goToeditpage() {
 function goTovotepage() {
   router.push('/rooms/:room_id/places')
 }
+
+import BasicButton from '@/components/BasicButton.vue'
 </script>
 
 <template>
@@ -18,18 +20,14 @@ function goTovotepage() {
         <h1 class="text-4xl font-bold text-gray-900 mb-4">これはアプリタイトル</h1>
         <p class="text-lg text-gray-600 mb-[196px]">これはアプリサブタイトル</p>
         <div class="flex flex-col items-center space-y-4">
-          <button
-            @click="goToeditpage"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
-          >
-            ルームを作成
-          </button>
-          <button
-            @click="goTovotepage"
-            class="bg-white hover:bg-gray-300 text-blue-500 font-bold py-2 px-4 rounded transition-colors"
-          >
-            ルームに参加
-          </button>
+          <BasicButton 
+          @click="goToeditpage"
+          text="ルームを作成" variant="primary" size="large" leftIcon="Edit_Calender"
+          />
+          <BasicButton 
+          @click="goTovotepage"
+          text="ルームに参加" variant="secondery" size="large" leftIcon="Door_open"
+          />
         </div>
       </div>
     </div>
