@@ -50,10 +50,10 @@ func (r *Repository) CreatePlaceVote(ctx context.Context, params CreatePlaceVote
 	return voteID, nil
 }
 
-func (r *Repository) CreatePlaceVotes(ctx context.Context, params []CreatePlaceVoteParams) ([]uuid.UUID, error) {
+func (r *Repository) CreatePlaceVotes(ctx context.Context, params []CreatePlaceVoteParams) (error) {
 	tx, err := r.db.Beginx()
 	if err != nil {
-		return nil, fmt.Errorf("faild start transaction: %w", err)
+		return fmt.Errorf("faild start transaction: %w", err)
 	}
 	placeVoteIDs := lo.Times(len(params), func(_ int) uuid.UUID {
 		return uuid.New()
@@ -61,15 +61,15 @@ func (r *Repository) CreatePlaceVotes(ctx context.Context, params []CreatePlaceV
 	for i, param := range params {
 		if _, err := tx.ExecContext(ctx, "INSERT INTO placeVotes (id, user_id, place_id, rank) VALUES (?, ?, ?, ?)", placeVoteIDs[i], param.UserID, param.PlaceID, param.Rank); err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("faild insert timeVote: %w", err)
+			return fmt.Errorf("faild insert timeVote: %w", err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("faild commit transaction: %w", err)
+		return fmt.Errorf("faild commit transaction: %w", err)
 	}
 
-	return placeVoteIDs, nil
+	return nil
 }
 
 func (r *Repository) GetPlaceVote(ctx context.Context, voteID uuid.UUID) (*placeVote, error) {
