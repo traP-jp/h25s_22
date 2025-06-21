@@ -24,7 +24,7 @@ function sharelink() {}
         <div class="box-header w-64 size-8">ルームID</div>
         <div class="size-6 w-64 flex">
           <div class="idtext flex-auto">{{ room_id }}</div>
-          <button class="copybutton w-6" @click="idcopy(room_id)">コ</button>
+          <button class="copybutton w-6" @click="idcopy(room_id)"><img src="@/assets/icons/content_copy.svg"></button>
         </div>
       </div>
       <div class="flex gap-3 flex-wrap justify-center items-center">
