@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
 import MenuIcon from '@/assets/icons/menu.svg'
+import HomeIcon from '@/assets/icons/home.svg'
+import EditCalendarIcon from '@/assets/icons/edit_calendar.svg'
+import DoorOpenIcon from '@/assets/icons/door_open.svg'
+import CloseIcon from '@/assets/icons/close.svg'
 
-
+const router = useRouter()
 const isMenuOpen = ref(false)
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -12,16 +16,17 @@ const handleMenuAction = (action: string) => {
   isMenuOpen.value = false
 
   switch (action) {
-    case 'save':
-      console.log('保存しました')
+    case 'home':
+      router.push('/')
       break
-    case 'reset':
-      if (confirm('順序をリセットしますか？')) {
-        console.log('リセットしました')
-      }
+    case 'create-room':
+      router.push('/rooms/edit/date-and-time')
+      break
+    case 'join-room':
+      // TODO: 不適切
+      router.push('/rooms/123/places')
       break
     case 'close':
-      console.log('閉じました')
       break
   }
 }
@@ -45,7 +50,9 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-gray-50 flex justify-center">
     <div class="max-w-md w-full relative">
-      <div class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50 bg-gray-100 h-9 flex items-center justify-end pr-3">
+      <div
+        class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50 bg-gray-100 h-9 flex items-center justify-end pr-3"
+      >
         <div class="menu-container relative">
           <button
             @click="toggleMenu"
@@ -57,24 +64,35 @@ onUnmounted(() => {
           <!-- ドロップダウンメニュー -->
           <div
             v-if="isMenuOpen"
-            class="absolute top-6 right-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-32 z-10"
+            class="absolute top-6 right-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-40 z-10"
           >
             <button
-              @click="handleMenuAction('save')"
-              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              @click="handleMenuAction('home')"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
             >
-              保存
+              <img :src="HomeIcon" alt="Home" class="w-4 h-4" />
+              ホームへ
             </button>
             <button
-              @click="handleMenuAction('reset')"
-              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              @click="handleMenuAction('create-room')"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
             >
-              リセット
+              <img :src="EditCalendarIcon" alt="Create Room" class="w-4 h-4" />
+              ルーム作成
             </button>
+            <button
+              @click="handleMenuAction('join-room')"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
+            >
+              <img :src="DoorOpenIcon" alt="Join Room" class="w-4 h-4" />
+              ルーム参加
+            </button>
+            <hr class="my-1 border-gray-200" />
             <button
               @click="handleMenuAction('close')"
-              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-3"
             >
+              <img :src="CloseIcon" alt="Close" class="w-4 h-4" />
               閉じる
             </button>
           </div>
