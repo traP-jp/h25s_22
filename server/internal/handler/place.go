@@ -89,10 +89,10 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 	return c.JSON(http.StatusOK,photo)
 }
 type GetDetail struct{
-	name string
-	rate float32
-	priceLevel int
-	address string
+	Name string `json:"name"`
+	Rate float32 `json:"rate"`
+	PriceLevel int `json:"pricelevel"`
+	Address string `json:"address"`
 
 
 }
@@ -108,10 +108,10 @@ func (h *Handler) GetPlace(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
 	}
 	getDetail := GetDetail{
-		name: detail.Name,
-		rate: detail.Rating,
-		priceLevel: detail.PriceLevel,
-		address: detail.FormattedAddress,
+		Name: detail.Name,
+		Rate: detail.Rating,
+		PriceLevel: detail.PriceLevel,
+		Address: detail.FormattedAddress,
 	}
 	return c.JSON(http.StatusOK, getDetail)
 }
