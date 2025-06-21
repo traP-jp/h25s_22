@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
+import BasicButton from '@/components/BasicButton.vue'
 
 const route = useRoute()
 const API_KEY = 'MY_API_KEY' //本来は環境変数などから取得する?
@@ -23,6 +24,7 @@ const places = ref([
     address: '東京都文京区本郷',
     votes: 5,
     isVotedByMe: false,
+    image: '/dummy.png'
   },
   {
     id: 2,
@@ -30,6 +32,7 @@ const places = ref([
     address: '東京都新宿区早稲田',
     votes: 12,
     isVotedByMe: true,
+    image: '/dummy.png'
   },
   {
     id: 3,
@@ -37,6 +40,7 @@ const places = ref([
     address: '東京都目黒区大岡山',
     votes: 8,
     isVotedByMe: false,
+    image: '/dummy.png'
   },
 ])
 
@@ -59,19 +63,8 @@ const handleVote = () => {
       <header
         class="flex h-10 w-full shrink-0 items-center justify-end border-b border-gray-200 bg-gray-50 px-4"
       >
-        <svg
-          class="h-6 w-6 text-gray-700"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
+        <svg class="h-6 w-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
       </header>
 
@@ -80,7 +73,6 @@ const handleVote = () => {
           <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">候補地を確認</h1>
 
           <div class="h-72 w-full rounded-lg bg-gray-200">
-            <!-- 本来はGoogle Map APIキーを取得して設定 -->
             <GoogleMap
               :api-key="API_KEY"
               :center="mapCenter"
@@ -104,9 +96,8 @@ const handleVote = () => {
               'border-gray-200': selectedPlaceId !== place.id,
             }"
           >
-            <!-- 本来はGoogle Map のサムネイルなど？をとってきて設定する? -->
             <img
-              src="/dummy.png"
+              :src="place.image || '/dummy.png'"
               :alt="place.name"
               class="h-16 w-16 shrink-0 rounded-md bg-gray-200 object-cover"
             />
@@ -128,26 +119,14 @@ const handleVote = () => {
         <div class="flex-grow"></div>
 
         <footer class="shrink-0 bg-white px-12 pt-9 pb-20">
-          <button
+          <BasicButton
+            text="投票する →"
+            variant="primary"
+            size="large"
+            right-icon="arrow-right"
             @click="handleVote"
-            class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-500 text-base font-semibold text-white transition-colors hover:bg-blue-600"
-          >
-            <span>投票する</span>
-            <svg
-              class="h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2.5"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              />
-            </svg>
-          </button>
+            class="h-12 w-full"
+          />
         </footer>
       </main>
     </div>
