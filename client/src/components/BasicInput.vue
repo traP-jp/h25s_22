@@ -2,7 +2,7 @@
 import { computed, ref, useTemplateRef, onMounted } from 'vue'
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 const {
   error = false,
@@ -11,7 +11,7 @@ const {
   leftIcon = '',
   rightIcon = '',
   supportingText,
-  size = 'large'
+  size = 'large',
 } = defineProps<{
   disabled?: boolean
   displaysLength?: boolean
@@ -101,15 +101,12 @@ const onClickInnerBorder = (e: MouseEvent) => {
           { 'border-border-secondary outline-text-primary': !displaysError },
           { 'border-red-500 outline-1 outline-red-500': displaysError },
           { 'border-text-primary': isFocused && !displaysError },
-          { 'bg-background-secondary': disabled }
+          { 'bg-background-secondary': disabled },
         ]"
         @mousedown="onClickInnerBorder"
       >
         <div v-if="displaysLeftIcon" class="w-5 h-5 flex items-center justify-center">
-          <div
-            v-html="getIconSvg(leftIcon)"
-            class="w-5 h-5"
-          ></div>
+          <div v-html="getIconSvg(leftIcon)" class="w-5 h-5"></div>
         </div>
         <input
           v-bind="$attrs"
@@ -127,10 +124,7 @@ const onClickInnerBorder = (e: MouseEvent) => {
           }}</span>
           <button v-if="displaysRightIcon" type="button" @click="emit('clickRight')">
             <div class="w-5 h-5 flex items-center justify-center">
-              <div
-                v-html="getIconSvg(rightIcon)"
-                class="w-5 h-5"
-              ></div>
+              <div v-html="getIconSvg(rightIcon)" class="w-5 h-5"></div>
             </div>
           </button>
         </span>
@@ -144,7 +138,9 @@ const onClickInnerBorder = (e: MouseEvent) => {
     <div v-if="errorMessage != ''" class="mt-2 flex items-start gap-2 text-red-500">
       <div class="w-5 h-5 flex items-center justify-center">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+          />
         </svg>
       </div>
       <span class="fontstyle-ui-control min-w-0 break-words">{{ errorMessage }}</span>

@@ -3,32 +3,28 @@
     :class="[
       'px-6 py-4 rounded-lg inline-flex justify-center items-center overflow-hidden transition-colors duration-200 ease-in-out',
       sizeClasses,
-      variantClasses
+      variantClasses,
     ]"
     :disabled="disabled"
   >
     <div v-if="leftIcon" class="w-6 h-6 flex items-center justify-center">
-      <div
-        v-html="getIconSvg(leftIcon)"
-        class="w-6 h-6"
-      ></div>
+      <div v-html="getIconSvg(leftIcon)" class="w-6 h-6"></div>
     </div>
 
     <div class="px-2 flex justify-center items-center">
-      <div :class="[
-        'justify-center text-base font-medium font-primary leading-normal',
-        textColorClasses
-      ]">
+      <div
+        :class="[
+          'justify-center text-base font-medium font-primary leading-normal',
+          textColorClasses,
+        ]"
+      >
         {{ text }}
       </div>
     </div>
 
     <!-- Right Icon -->
     <div v-if="rightIcon" class="w-6 h-6 flex items-center justify-center">
-      <div
-        v-html="getIconSvg(rightIcon)"
-        class="w-6 h-6"
-      ></div>
+      <div v-html="getIconSvg(rightIcon)" class="w-6 h-6"></div>
     </div>
   </button>
 </template>
@@ -40,28 +36,28 @@ import { computed, ref, onMounted } from 'vue'
 const props = defineProps({
   text: {
     type: String,
-    required: true
+    required: true,
   },
   variant: {
     type: String as () => 'primary' | 'secondary',
-    default: 'primary'
+    default: 'primary',
   },
   size: {
     type: String as () => 'large' | 'medium',
-    default: 'large'
+    default: 'large',
   },
   leftIcon: {
     type: String,
-    default: ''
+    default: '',
   },
   rightIcon: {
     type: String,
-    default: ''
+    default: '',
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const leftIconSvg = ref('')

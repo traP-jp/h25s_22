@@ -15,17 +15,8 @@
               left-icon="home_inv"
               right-icon="home"
             />
-            <BasicButton
-              text="Primary Medium"
-              variant="primary"
-              size="medium"
-              left-icon="home"
-            />
-            <BasicButton
-              text="Primary No Icons"
-              variant="primary"
-              size="large"
-            />
+            <BasicButton text="Primary Medium" variant="primary" size="medium" left-icon="home" />
+            <BasicButton text="Primary No Icons" variant="primary" size="large" />
           </div>
         </div>
 
@@ -82,11 +73,7 @@
               size="medium"
               right-icon="home"
             />
-            <BasicButton
-              text="Secondary No Icons"
-              variant="secondary"
-              size="large"
-            />
+            <BasicButton text="Secondary No Icons" variant="secondary" size="large" />
           </div>
         </div>
       </div>
