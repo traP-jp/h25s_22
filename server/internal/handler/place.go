@@ -125,6 +125,8 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 	if maxWidthStr := c.QueryParam("maxWidth"); maxWidthStr != "" {
 		if maxWidth, err := strconv.Atoi(maxWidthStr); err == nil {
 			photoReq.MaxWidth = uint(maxWidth)
+		} else {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid maxWidth parameter")
 		}
 	} else {
 		return echo.NewHTTPError(http.StatusBadRequest, "maxWidth parameter is required")
@@ -133,6 +135,8 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 	if maxHeightStr := c.QueryParam("maxHeight"); maxHeightStr != "" {
 		if maxHeight, err := strconv.Atoi(maxHeightStr); err == nil {
 			photoReq.MaxHeight = uint(maxHeight)
+		} else {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid maxHeight parameter")
 		}
 	} else {
 		return echo.NewHTTPError(http.StatusBadRequest, "maxHeight parameter is required")
