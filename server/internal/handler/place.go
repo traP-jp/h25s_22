@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
-
+	"os"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
 	"googlemaps.github.io/maps"
@@ -79,10 +79,14 @@ func (h *Handler) GetSearch(c echo.Context) error {
 
 
 func (h *Handler) GetPhoto(c echo.Context) error {
-	client, err := maps.NewClient(maps.WithAPIKey("api_key"))
+	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
+	if !ok  {
+		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	}
+	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 	photoReq := &maps.PlacePhotoRequest{}
 	errors := c.Bind(photoReq)
-	photo, err := client.PlacePhoto(context.	Background(), photoReq)
+	photo, err := client.PlacePhoto(context.Background(), photoReq)
 	if err != nil || errors != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
 	} 
@@ -98,7 +102,7 @@ type GetDetail struct{
 }
 func (h *Handler) GetPlace(c echo.Context) error {
 	client, err := maps.NewClient(maps.WithAPIKey("api_key"))
-	placeId := c.Param(":placeId")
+	placeId := c.Param("placeId")
 	detailReq := &maps.PlaceDetailsRequest{
 		PlaceID:  placeId,
 		Language: "ja",
