@@ -120,7 +120,7 @@ const onClickInnerBorder = (e: MouseEvent) => {
         />
         <span class="inline-flex items-center gap-2">
           <span v-if="displaysLength" class="fontstyle-ui-caption text-text-secondary">{{
-            typeof value === 'number' ? value.toString().length : value?.length ?? 0
+            typeof value === 'number' ? value.toString().length : (value?.length ?? 0)
           }}</span>
           <button v-if="displaysRightIcon" type="button" @click="emit('clickRight')">
             <div class="w-5 h-5 flex items-center justify-center">
