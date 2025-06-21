@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
 
-const router = useRouter()
 const route = useRoute()
 
 // 地図関連のデータ,本来は取得したものによって設定
