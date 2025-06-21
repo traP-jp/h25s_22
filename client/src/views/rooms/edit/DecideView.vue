@@ -52,14 +52,14 @@
           <div v-else class="grid gap-4 md:grid-cols-2">
             <div
               v-for="place in roomCreationStore.suggestedPlaces"
-              :key="place.id"
+              :key="place.placeID"
               class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
               :class="{
                 'border-blue-500 bg-blue-50': roomCreationStore.selectedPlaces.find(
-                  (p: any) => p.id === place.id,
+                  (p: any) => p.id === place.placeID,
                 ),
                 'border-gray-200': !roomCreationStore.selectedPlaces.find(
-                  (p: any) => p.id === place.id,
+                  (p: any) => p.id === place.placeID,
                 ),
               }"
               @click="handlePlaceToggle(place)"

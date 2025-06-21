@@ -103,7 +103,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
 
   // アクション - 選択された場所の管理
   const togglePlaceSelection = (place: PlaceSearchResult) => {
-    const index = selectedPlaces.value.findIndex((p) => p.id === place.id)
+    const index = selectedPlaces.value.findIndex((p) => p.placeID === place.placeID)
     if (index !== -1) {
       selectedPlaces.value.splice(index, 1)
     } else {
