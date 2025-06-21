@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useMainStore } from '@/stores'
 import MenuIcon from '@/assets/icons/menu.svg'
 import HomeIcon from '@/assets/icons/home.svg'
 import EditCalendarIcon from '@/assets/icons/edit_calendar.svg'
@@ -9,7 +8,6 @@ import DoorOpenIcon from '@/assets/icons/door_open.svg'
 import CloseIcon from '@/assets/icons/close.svg'
 
 const router = useRouter()
-const mainStore = useMainStore()
 const isMenuOpen = ref(false)
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value

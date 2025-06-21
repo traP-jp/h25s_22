@@ -162,6 +162,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoomCreationStore } from '@/stores'
+import type { PlaceSearchResult } from '@/services/types'
 
 const router = useRouter()
 const roomCreationStore = useRoomCreationStore()
@@ -171,14 +172,13 @@ const roomDescription = ref('')
 const isCreating = ref(false)
 
 onMounted(() => {
-  // 必要なデータが揃っていない場合は前のページに戻す
   if (!roomCreationStore.canProceedToDecide) {
     alert('必要な情報が不足しています。最初からやり直してください。')
     router.push('/rooms/edit/date-and-time')
   }
 })
 
-const handlePlaceToggle = (place: any) => {
+const handlePlaceToggle = (place: PlaceSearchResult) => {
   roomCreationStore.togglePlaceSelection(place)
 }
 
@@ -187,6 +187,7 @@ const handleRetrySearch = async () => {
     await roomCreationStore.searchPlaces()
   } catch (error) {
     alert('場所検索でエラーが発生しました。')
+    console.error('場所検索エラー:', error)
   }
 }
 
@@ -209,6 +210,7 @@ const handleCreateRoom = async () => {
     }
   } catch (error) {
     alert('ルーム作成でエラーが発生しました。')
+    console.error('ルーム作成エラー:', error)
   } finally {
     isCreating.value = false
   }

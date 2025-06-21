@@ -43,6 +43,7 @@ const goNext = async () => {
     }
   } catch (error) {
     alert('場所検索でエラーが発生しました。')
+    console.error('場所検索エラー:', error)
   }
 }
 </script>

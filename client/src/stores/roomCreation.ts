@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { TimeOption, Place, PlaceSearchSettings, DateTimeFormData } from '@/types'
+import type { TimeOption, PlaceSearchSettings, DateTimeFormData } from '@/types'
 import type { PlaceSearchResult } from '@/services/types'
 import { searchNearbyPlaces, createRoom } from '@/services/api'
 

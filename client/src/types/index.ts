@@ -65,17 +65,3 @@ export interface DateTimeFormData {
   startTime: string
   endTime: string
 }
-
-// API レスポンス型
-export interface ApiResponse<T> {
-  data: T
-  message?: string
-  success: boolean
-}
-
-// エラー型
-export interface ApiError {
-  message: string
-  code?: string
-  details?: Record<string, any>
-}
