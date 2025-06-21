@@ -31,7 +31,11 @@ type GetSearch struct{
 }
 
 func (h *Handler) GetSearch(c echo.Context) error {
-	client, err := maps.NewClient(maps.WithAPIKey("api_key"))
+	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
+	if !ok  {
+		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	}
+	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 	nearRequest := &AskSearch{}
 	errors := c.Bind(nearRequest)
 	nameSearch := maps.TextSearchRequest{
@@ -101,7 +105,11 @@ type GetDetail struct{
 
 }
 func (h *Handler) GetPlace(c echo.Context) error {
-	client, err := maps.NewClient(maps.WithAPIKey("api_key"))
+	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
+	if !ok  {
+		return c.String(http.StatusInternalServerError,"Not Fund APIKey")
+	}
+	client, err := maps.NewClient(maps.WithAPIKey(api_key))
 	placeId := c.Param("placeId")
 	detailReq := &maps.PlaceDetailsRequest{
 		PlaceID:  placeId,
