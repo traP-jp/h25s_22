@@ -1,5 +1,5 @@
 import './assets/main.css'
-import {GoogleMap} from 'vue3-google-map'
+import { GoogleMap } from 'vue3-google-map'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
