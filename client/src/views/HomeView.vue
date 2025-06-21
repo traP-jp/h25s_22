@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {useRouter} from 'vue-router'
+import { useRouter } from 'vue-router'
 const router = useRouter()
 
-function goToeditpage(){
+function goToeditpage() {
   router.push('/rooms/edit/date-and-time')
 }
 
-function goTovotepage(){
+function goTovotepage() {
   router.push('/rooms/:room_id/places')
 }
 </script>
