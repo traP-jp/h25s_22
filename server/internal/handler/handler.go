@@ -30,4 +30,23 @@ func (h *Handler) SetupRoutes(api *echo.Group) {
 		userAPI.POST("", h.CreateUser)
 		userAPI.GET("/:userID", h.GetUser)
 	}
-}
+
+	rootApi := api.Group("/api")
+	{	
+		roomAPI := rootApi.Group("/room")
+		{
+			roomAPI.POST("/create", h.CreateRoom)
+			roomAPI.GET("/:roomID", h.GetRoom)
+			roomAPI.POST("/vote", h.PostVote)
+			roomAPI.POST("/vote/change", h.ChangeVote)
+			roomAPI.GET("/vote/result/:roomID", h.GetResult)
+
+		}
+		placeAPI := rootApi.Group("/place")
+		{
+			placeAPI.GET("/nearSearch", h.GetSearch)
+			placeAPI.GET("/photo", h.GetPhoto)
+			placeAPI.GET("/:placeId",h.GetPlace)
+		}
+	}	
+}	
