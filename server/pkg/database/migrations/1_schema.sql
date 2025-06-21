@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 	`id` CHAR(36) NOT NULL,
 	`place_max` INT,
 	`center_point` VARCHAR(255) NOT NULL,
-	`radius` FLOAT NOT NULL,
+	`radius` INT NOT NULL,
 	`create_at` TIMESTAMP NULL,
 	PRIMARY KEY (`id`)
 );
@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `placeVotes` (
 
 CREATE TABLE IF NOT EXISTS `timeOptions` (
 	`id` CHAR(36) NOT NULL,
+	`room_id` CHAR(36) NOT NULL,
 	`start_time` TIMESTAMP NULL,
 	`end_time` TIMESTAMP NULL,
 	PRIMARY KEY (`id`)
