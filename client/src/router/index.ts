@@ -59,6 +59,11 @@ const router = createRouter({
       name: 'rooms-vote-results',
       component: () => import('../views/rooms/VoteResultsView.vue'),
     },
+    {
+      path: '/rooms/:room_id/room-participation',
+      name: 'rooms-participate',
+      component: () => import('../views/rooms/RoomParticipation.vue'),
+    },
   ],
 })
 
