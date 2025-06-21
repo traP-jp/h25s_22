@@ -12,12 +12,19 @@ export const searchNearbyPlaces = async (
   params: PlaceSearchRequest,
 ): Promise<PlaceSearchResult[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/place/nearSearch`, {
+    const queryParams = new URLSearchParams({
+      name: params.name,
+      radius: params.radius.toString(),
+      type: params.type,
+      maxSize: params.maxSize.toString(),
+      language: params.language,
+    })
+
+    const response = await fetch(`${API_BASE_URL}/place/nearSearch?${queryParams}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(params),
     })
 
     if (!response.ok) {
@@ -25,7 +32,7 @@ export const searchNearbyPlaces = async (
     }
 
     const data = await response.json()
-    return data.results || []
+    return data || []
   } catch (error) {
     console.error('Place search API error:', error)
     throw error
@@ -35,11 +42,11 @@ export const searchNearbyPlaces = async (
 // ルーム作成API（仮実装）
 export const createRoom = async (roomData: CreateRoomRequest): Promise<CreateRoomResponse> => {
   try {
-    // 実際のAPIが完成するまでの仮実装
+    // TODO: 実際のAPIエンドポイントに置き換える
     console.log('Creating room with data:', roomData)
 
     // 仮のレスポンスを返す
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // API呼び出しをシミュレート
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     return {
       id: `room_${Date.now()}`,

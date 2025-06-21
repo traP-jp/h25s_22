@@ -8,14 +8,22 @@ export interface PlaceSearchRequest {
 }
 
 export interface PlaceSearchResult {
-  id: string
+  placeID: string
   name: string
   address: string
-  latitude: number
-  longitude: number
+  location: {
+    lat: number
+    lng: number
+  }
+  photoReference?: {
+    photo_reference: string
+    height: number
+    width: number
+    html_attributions: string[]
+  }
+  priceLevel?: number
   rating?: number
-  types: string[]
-  photoUrl?: string
+  types?: string[]
 }
 
 export interface CreateRoomRequest {
