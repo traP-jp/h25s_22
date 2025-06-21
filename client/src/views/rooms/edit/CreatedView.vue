@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // 作成完了ページのロジックをここに追加
-import { isJSDocOptionalType } from 'typescript'
 import { ref } from 'vue'
 
 const room_id = ref('sampleID')
@@ -19,23 +18,23 @@ function sharelink() {}
 <template>
   <div id="container">
     <div class="flex gap-4 flex-wrap">
-    <h1 class="header w-75 size-7">ルームを作成しました！</h1>
-    <div class="roomid-box w-75 size-30 flex gap-4 flex flex-col justify-center items-center">
-      <div class="box-header w-64 size-8">ルームID</div>
-      <div class="size-6 w-64 flex">
-        <div class="idtext flex-auto">{{ room_id }}</div>
-        <button class="copybutton w-6" @click="idcopy(room_id)">コ</button>
+      <h1 class="w-75 size-7">ルームを作成しました！</h1>
+      <div class="roomid-box w-75 size-30 flex gap-4 flex flex-col justify-center items-center">
+        <div class="box-header w-64 size-8">ルームID</div>
+        <div class="size-6 w-64 flex">
+          <div class="idtext flex-auto">{{ room_id }}</div>
+          <button class="copybutton w-6" @click="idcopy(room_id)">コ</button>
+        </div>
       </div>
-    </div>
 
-    <div class="flex gap-3 flex-wrap">
-      <button class="home-button w-75 size-14 flex-none" @click="backhome">
-        <div class="home-button-text">ホームに戻る</div>
-      </button>
-      <button class="share-button w-75 size-14 flex-none" @click="sharelink">
-        <div class="share-button-text">リンクをシェア</div>
-      </button>
-    </div>
+      <div class="flex gap-3 flex-wrap">
+        <button class="home-button w-75 size-14 flex-none" @click="backhome">
+          <div class="home-button-text">ホームに戻る</div>
+        </button>
+        <button class="share-button w-75 size-14 flex-none" @click="sharelink">
+          <div class="share-button-text">リンクをシェア</div>
+        </button>
+      </div>
     </div>
   </div>
 </template>
