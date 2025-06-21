@@ -41,9 +41,8 @@ function sharelink() {}
 </template>
 
 <style>
-
 .roomid-box {
-  background-color: #ffffff;  
+  background-color: #ffffff;
   grid-row: 4/5;
   grid-column: 2/3;
   border-radius: 10px;
