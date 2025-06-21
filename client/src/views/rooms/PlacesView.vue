@@ -13,7 +13,9 @@ const markers = ref([
   { id: 'tokodai', position: { lat: 35.6062, lng: 139.683 }, title: '東京科学大学' },
   { id: 'waseda', position: { lat: 35.70902, lng: 139.71937 }, title: '早稲田大学' },
 ])
-
+const nextPage = () => {
+  // 次のページへの遷移処理
+}
 // ダミーのデータ
 const places = ref([
   {
@@ -120,7 +122,7 @@ const selectedPlaceId = ref(2)
             variant="primary"
             size="large"
             right-icon="arrow-right"
-            @click="handleVote"
+            @click="nextPage"
             class="h-12 w-full"
           />
         </footer>
