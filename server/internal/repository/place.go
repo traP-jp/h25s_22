@@ -12,12 +12,12 @@ type (
 	Place struct {
 		ID            uuid.UUID `db:"id"`
 		RoomID        uuid.UUID `db:"room_id"`
-		GooglePlaceID uuid.UUID `db:"google_place_id"`
+		GooglePlaceID string    `db:"google_place_id"`
 	}
 
 	CreatePlaceParams struct {
 		RoomID        uuid.UUID `db:"room_id"`
-		GooglePlaceID uuid.UUID `db:"google_place_id"`
+		GooglePlaceID string    `db:"google_place_id"`
 	}
 )
 

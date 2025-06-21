@@ -19,7 +19,7 @@ type (
 		TimeOptions   []TimeOption `json:"time_options"`    // 時間候補
 		PlaceOptions  []string     `json:"place_options"`   // 場所候補（GooglePlaceIDの配列）
 		CenterPlaceID string       `json:"center_place_id"` // 中心位置(GooglePlaceID)
-		Radius        float64      `json:"radius"`          // 半径
+		Radius        int          `json:"radius"`          // 半径
 		PlaceMax      int          `json:"place_max"`       // 最大値
 	}
 
@@ -30,11 +30,11 @@ type (
 	}
 	ReturnPlaceOption struct {
 		ID            uuid.UUID `json:"id"`              // 場所候補のID
-		GooglePlaceID uuid.UUID `json:"google_place_id"` // Google Place ID
+		GooglePlaceID string    `json:"google_place_id"` // Google Place ID
 	}
 
 	CreateRoomResponse struct {
-		RoomID       string              `json:"room_id"`       // 作成されたルームのID
+		RoomID       uuid.UUID           `json:"room_id"`       // 作成されたルームのID
 		TimeOptions  []ReturnTimeOption  `json:"time_options"`  // 作成された時間候補
 		PlaceOptions []ReturnPlaceOption `json:"place_options"` // 作成された場所候補
 	}
@@ -71,13 +71,9 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 		}
 	}
 	for i, placeOption := range req.PlaceOptions {
-		googlePlaceID, err := uuid.Parse(placeOption) // GooglePlaceIDのパース
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid place option"})
-		}
 		placeOptionsWithID[i] = repository.CreatePlaceParams{
 			RoomID:        roomID,
-			GooglePlaceID: googlePlaceID,
+			GooglePlaceID: placeOption,
 		}
 	}
 
@@ -119,7 +115,7 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 	}
 
 	res := CreateRoomResponse{ // レスポンスの構築
-		RoomID:       roomID.String(),
+		RoomID:       roomID,
 		TimeOptions:  resTimeOptions,
 		PlaceOptions: resPlaceOptions,
 	}
