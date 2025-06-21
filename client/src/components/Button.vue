@@ -17,7 +17,7 @@
 
     <div class="px-2 flex justify-center items-center">
       <div :class="[
-        'justify-center text-base font-medium font-[\'Noto_Sans_JP\'] leading-normal',
+        'justify-center text-base font-medium font-primary leading-normal',
         textColorClasses
       ]">
         {{ text }}
@@ -67,7 +67,7 @@ const props = defineProps({
 
 // Computed classes based on size
 const sizeClasses = computed(() => {
-  return props.size === 'large' ? 'w-[300px]' : 'w-[144px]'
+  return props.size === 'large' ? 'w-75' : 'w-36'
 })
 
 // Computed classes based on variant
