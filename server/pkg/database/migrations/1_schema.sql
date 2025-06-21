@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `people` (
+CREATE TABLE IF NOT EXISTS `users` (
 	`id` CHAR(36) NOT NULL,
 	`room_id` CHAR(36) NOT NULL,
-	`user_name` VARCHAR(255),
+	`name` VARCHAR(255),
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE
 );
@@ -24,13 +24,28 @@ CREATE TABLE IF NOT EXISTS `places` (
 	FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS `votes` (
+CREATE TABLE IF NOT EXISTS `placeVotes` (
 	`id` CHAR(36) NOT NULL,
-	`people_id` CHAR(36) NOT NULL,
+	`user_id` CHAR(36) NOT NULL,
 	`place_id` CHAR(36) NOT NULL,
 	`rank` INT NOT NULL,
-	`time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`),
-	FOREIGN KEY (`people_id`) REFERENCES `people`(`id`) ON DELETE CASCADE,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
 	FOREIGN KEY (`place_id`) REFERENCES `places`(`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `timeOptions` (
+	`id` CHAR(36) NOT NULL,
+	`start_time` TIMESTAMP NULL,
+	`end_time` TIMESTAMP NULL,
+	PRIMARY KEY (`id`)
+);	
+
+CREATE TABLE IF NOT EXISTS `timeVotes` (
+	`id` CHAR(36) NOT NULL,
+	`users_id` CHAR(36) NOT NULL,
+	`time_id` CHAR(36) NOT NULL,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+	FOREIGN KEY (`time_id`) REFERENCES `timeOptions`(`id`) ON DELETE CASCADE
 );
