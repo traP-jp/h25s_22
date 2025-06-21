@@ -1,8 +1,6 @@
 <template>
   <div class="flex w-full items-start justify-center">
-    <div
-      class="flex w-[400px] flex-col"
-    >
+    <div class="flex w-[400px] flex-col">
       <div class="box-border w-full flex-grow overflow-y-auto px-12 pt-12">
         <div class="w-full">
           <h1 class="mb-8 h-9 text-xl font-medium leading-9">候補地を希望順に並び替え</h1>
@@ -24,8 +22,10 @@
                 'bg-gray-50 rounded-lg border border-gray-200 p-4 cursor-move transition-all duration-200 ease-out',
                 draggedIndex === index && !isDragging ? 'opacity-60 scale-105 shadow-lg z-10' : '',
                 draggedIndex === index && isDragging ? 'opacity-20' : '',
-                dragOverIndex === index && draggedIndex !== index ? 'border-blue-400 bg-blue-50' : '',
-                'transform select-none'
+                dragOverIndex === index && draggedIndex !== index
+                  ? 'border-blue-400 bg-blue-50'
+                  : '',
+                'transform select-none',
               ]"
             >
               <div class="flex items-center justify-between">
@@ -42,7 +42,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-
                   <div class="flex flex-col space-y-1">
                     <button
                       @click="moveItem(index, 'up')"
@@ -91,13 +90,15 @@
       </div>
     </div>
     <div
-      v-if="isDragging && draggedIndex !== null && touchPosition.x !== null && touchPosition.y !== null"
+      v-if="
+        isDragging && draggedIndex !== null && touchPosition.x !== null && touchPosition.y !== null
+      "
       :style="{
         position: 'fixed',
         top: touchPosition.y - 40 + 'px',
         width: '400px',
         zIndex: 1000,
-        pointerEvents: 'none'
+        pointerEvents: 'none',
       }"
       class="bg-gray-50 rounded-lg border border-gray-200 p-4 opacity-80 scale-105 shadow-2xl transform rotate-2"
     >
@@ -171,7 +172,8 @@ const displayLocations = computed(() => {
   result.splice(draggedIndex.value, 1)
 
   // 新しい位置に挿入
-  const insertIndex = draggedIndex.value < dragOverIndex.value ? dragOverIndex.value - 1 : dragOverIndex.value
+  const insertIndex =
+    draggedIndex.value < dragOverIndex.value ? dragOverIndex.value - 1 : dragOverIndex.value
   result.splice(insertIndex, 0, draggedItem)
 
   return result
@@ -185,7 +187,7 @@ const getDisplayRank = (location: Location, currentIndex: number): number => {
   }
 
   // ドラッグ中の場合は、元の配列での位置を返す
-  const originalIndex = locations.value.findIndex(loc => loc.id === location.id)
+  const originalIndex = locations.value.findIndex((loc) => loc.id === location.id)
   return originalIndex + 1
 }
 
@@ -279,7 +281,7 @@ const handleTouchStart = (index: number, event: TouchEvent) => {
   // 初期タッチ位置を設定
   touchPosition.value = {
     x: event.touches[0].clientX,
-    y: event.touches[0].clientY
+    y: event.touches[0].clientY,
   }
 
   // bodyのスクロールを無効化
@@ -302,7 +304,7 @@ const handleTouchMove = (event: TouchEvent) => {
   // タッチ位置を更新（フローティング要素用）
   touchPosition.value = {
     x: currentX,
-    y: currentY
+    y: currentY,
   }
 
   // 新しいインデックスを直接計算
@@ -316,7 +318,7 @@ const handleTouchMove = (event: TouchEvent) => {
 
   // dragOverIndexを更新
   if (newIndex !== dragOverIndex.value) {
-    console.log("新しいインデックス:", newIndex)
+    console.log('新しいインデックス:', newIndex)
     dragOverIndex.value = newIndex
   }
 }
