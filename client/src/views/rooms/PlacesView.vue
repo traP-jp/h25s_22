@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
 
 const route = useRoute()
-
+const API_KEY = 'MY_API_KEY' //本来は環境変数などから取得する?
 // 地図関連のデータ,本来は取得したものによって設定
 const mapCenter = ref({ lat: 35.68, lng: 139.73 })
 const mapZoom = ref(12)
@@ -82,7 +82,7 @@ const handleVote = () => {
           <div class="h-72 w-full rounded-lg bg-gray-200">
             <!-- 本来はGoogle Map APIキーを取得して設定 -->
             <GoogleMap
-              :api-key="YOUR_Maps_API_KEY"
+              :api-key="API_KEY"
               :center="mapCenter"
               :zoom="mapZoom"
               style="width: 100%; height: 100%"
