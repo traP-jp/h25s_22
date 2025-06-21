@@ -29,6 +29,7 @@ type GetSearch struct {
 	Location       maps.LatLng `json:"location"`
 	PhotoReference string      `json:"photoReference"`
 	PriceLevel     int         `json:"priceLevel"`
+	Rating         float32         `json:"rating"`
 	Address        string      `json:"address"`
 }
 
@@ -107,7 +108,8 @@ func (h *Handler) GetSearch(c echo.Context) error {
 			Location:       result.Geometry.Location,
 			PhotoReference: result.Photos[0].PhotoReference,
 			PriceLevel:     result.PriceLevel,
-			Address:        result.Vicinity,
+			Rating:         result.Rating,
+			Address: result.Vicinity,
 		}
 	})
 
