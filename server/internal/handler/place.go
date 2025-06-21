@@ -49,6 +49,8 @@ func (h *Handler) GetSearch(c echo.Context) error {
 		} else {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid radius parameter")
 		}
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, "radius parameter is required")
 	}
 
 	if maxSizeStr := c.QueryParam("maxSize"); maxSizeStr != "" {
@@ -57,6 +59,8 @@ func (h *Handler) GetSearch(c echo.Context) error {
 		} else {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid maxSize parameter")
 		}
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, "maxSize parameter is required")
 	}
 
 	if nearRequest.Name == "" {
@@ -122,12 +126,16 @@ func (h *Handler) GetPhoto(c echo.Context) error {
 		if maxWidth, err := strconv.Atoi(maxWidthStr); err == nil {
 			photoReq.MaxWidth = uint(maxWidth)
 		}
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, "maxWidth parameter is required")
 	}
 
 	if maxHeightStr := c.QueryParam("maxHeight"); maxHeightStr != "" {
 		if maxHeight, err := strconv.Atoi(maxHeightStr); err == nil {
 			photoReq.MaxHeight = uint(maxHeight)
 		}
+	} else {
+		return echo.NewHTTPError(http.StatusBadRequest, "maxHeight parameter is required")
 	}
 
 	if photoReq.PhotoReference == "" {
