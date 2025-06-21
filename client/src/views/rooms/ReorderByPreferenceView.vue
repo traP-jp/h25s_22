@@ -31,7 +31,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
                   <div
-                    :class="`w-8 h-8 ${getRankColor(getDisplayRank(location, index))} rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 transition-colors duration-200`"
+                    class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 transition-colors duration-200"
                   >
                     {{ getDisplayRank(location, index) }}
                   </div>
@@ -158,29 +158,6 @@ const touchStartIndex = ref<number | null>(null)
 const isDragging = ref(false)
 const touchPosition = ref<{ x: number | null; y: number | null }>({ x: null, y: null })
 
-// ドラッグ位置から新しいインデックスを計算する共通関数
-const calculateNewIndexFromPosition = (currentY: number, startY: number, startIndex: number): number => {
-  const deltaY = currentY - startY
-  const itemHeight = 92 // アイテムの高さ（パディング + ボーダー + マージン含む）
-
-  // ドラッグしている要素の中心位置を基準に計算
-  // アイテムの上端または下端を越えた場合に位置変更
-  let newIndex = startIndex
-
-  if (deltaY > 0) {
-    // 下方向に移動
-    const itemsCrossed = Math.floor((deltaY + itemHeight / 2) / itemHeight)
-    newIndex = startIndex + itemsCrossed
-  } else if (deltaY < 0) {
-    // 上方向に移動
-    const itemsCrossed = Math.floor((Math.abs(deltaY) + itemHeight / 2) / itemHeight)
-    newIndex = startIndex - itemsCrossed
-  }
-
-  // 境界値チェック
-  return Math.max(0, Math.min(locations.value.length - 1, newIndex))
-}
-
 // リアルタイムでドラッグ中の状態を反映する計算プロパティ
 const displayLocations = computed(() => {
   if (draggedIndex.value === null || dragOverIndex.value === null) {
@@ -194,19 +171,11 @@ const displayLocations = computed(() => {
   result.splice(draggedIndex.value, 1)
 
   // 新しい位置に挿入
-  // dragOverIndexは表示上の位置なので、削除後の配列に対して直接挿入
   const insertIndex = draggedIndex.value < dragOverIndex.value ? dragOverIndex.value - 1 : dragOverIndex.value
   result.splice(insertIndex, 0, draggedItem)
 
   return result
 })
-
-// 順位に基づいて色を決定する関数
-const getRankColor = (rank: number): string => {
-  switch (rank) {
-    default: return 'bg-blue-500'     // それ以外: 青色
-  }
-}
 
 // ドラッグ中は元の順位を表示し、ドラッグ後にのみ新しい順位を表示する関数
 const getDisplayRank = (location: Location, currentIndex: number): number => {
@@ -230,6 +199,7 @@ const moveItem = (index: number, direction: 'up' | 'down') => {
       newLocations[index],
     ]
     locations.value = newLocations
+    console.log(`Moved item from index ${index} to ${targetIndex}`)
   }
 }
 
@@ -260,8 +230,6 @@ const handleDragOver = (index: number, event: DragEvent) => {
   const rect = targetElement.getBoundingClientRect()
   const elementTop = rect.top
   const elementBottom = rect.bottom
-  const elementHeight = rect.height
-  const elementCenter = elementTop + elementHeight / 2
 
   // ドラッグしている要素の中心が、対象要素の上端または下端を越えたかチェック
   let shouldUpdatePosition = false
@@ -337,11 +305,18 @@ const handleTouchMove = (event: TouchEvent) => {
     y: currentY
   }
 
-  // 共通関数を使用して新しいインデックスを計算
-  const newIndex = calculateNewIndexFromPosition(currentY, touchStartY.value, touchStartIndex.value)
+  // 新しいインデックスを直接計算
+  const deltaY = currentY - touchStartY.value
+  const itemHeight = 92
+  const movedItems = Math.round(deltaY / itemHeight)
+  let newIndex = touchStartIndex.value + movedItems
+
+  // 境界値チェック
+  newIndex = Math.max(0, Math.min(locations.value.length - 1, newIndex))
 
   // dragOverIndexを更新
   if (newIndex !== dragOverIndex.value) {
+    console.log("新しいインデックス:", newIndex)
     dragOverIndex.value = newIndex
   }
 }
@@ -395,22 +370,6 @@ const handleTouchEnd = (event: TouchEvent) => {
 /* タッチ時の視覚的フィードバックを改善 */
 .transform {
   will-change: transform;
-}
-
-/* フローティング要素のアニメーション */
-.floating-drag-item {
-  animation: float 0.3s ease-out;
-}
-
-@keyframes float {
-  0% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.05) rotate(2deg);
-    opacity: 0.8;
-  }
 }
 
 /* モバイルでのスクロール防止 */
