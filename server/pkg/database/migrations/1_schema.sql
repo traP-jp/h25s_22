@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `people` (
 CREATE TABLE IF NOT EXISTS `places` (
 	`id` CHAR(36) NOT NULL,
 	`room_id` CHAR(36) NOT NULL,
-	`place_id` VARCHAR(255),
+	`google_place_id` VARCHAR(255),
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE
 );
