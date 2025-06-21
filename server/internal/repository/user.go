@@ -13,11 +13,13 @@ type (
 		ID     uuid.UUID `db:"id"`
 		RoomID uuid.UUID `db:"room_id"`
 		Name   string    `db:"name"`
+		Email string    `db:"email"`
 	}
 
 	CreateUserParams struct {
 		RoomID uuid.UUID `db:"room_id"`
 		Name   string    `db:"name"`
+		Email  string    `db:"email"`
 	}
 )
 
