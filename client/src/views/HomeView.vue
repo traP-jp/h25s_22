@@ -20,13 +20,19 @@ import BasicButton from '@/components/BasicButton.vue'
         <h1 class="text-4xl font-bold text-gray-900 mb-4">これはアプリタイトル</h1>
         <p class="text-lg text-gray-600 mb-[196px]">これはアプリサブタイトル</p>
         <div class="flex flex-col items-center space-y-4">
-          <BasicButton 
-          @click="goToeditpage"
-          text="ルームを作成" variant="primary" size="large" leftIcon="Edit_Calender"
+          <BasicButton
+            @click="goToeditpage"
+            text="ルームを作成"
+            variant="primary"
+            size="large"
+            leftIcon="Edit_Calender"
           />
-          <BasicButton 
-          @click="goTovotepage"
-          text="ルームに参加" variant="secondery" size="large" leftIcon="Door_open"
+          <BasicButton
+            @click="goTovotepage"
+            text="ルームに参加"
+            variant="secondary"
+            size="large"
+            leftIcon="Door_open"
           />
         </div>
       </div>
