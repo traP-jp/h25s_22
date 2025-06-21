@@ -6,16 +6,6 @@ export interface User {
   email?: string
 }
 
-export interface Room {
-  id: string
-  name: string
-  description: string
-  createdAt: string
-  timeOptions: TimeOption[]
-  places: Place[]
-  participants?: User[]
-}
-
 export interface TimeOption {
   id: string
   date: string
@@ -31,6 +21,18 @@ export interface Place {
   longitude?: number
   description?: string
   imageUrl?: string
+  rating?: number
+  types?: string[]
+}
+
+export interface Room {
+  id: string
+  name: string
+  description: string
+  createdAt: string
+  timeOptions: TimeOption[]
+  places: Place[]
+  participants?: User[]
 }
 
 export interface PlaceVote {
@@ -46,6 +48,22 @@ export interface TimeVote {
   timeOptionId: string
   userId: string
   available: boolean
+}
+
+// 場所検索の設定
+export interface PlaceSearchSettings {
+  genre: string
+  baseLocation: string
+  useCurrentLocation: boolean
+  radius: number
+  maxCandidates: number
+}
+
+// フォームデータ
+export interface DateTimeFormData {
+  date: string
+  startTime: string
+  endTime: string
 }
 
 // API レスポンス型
