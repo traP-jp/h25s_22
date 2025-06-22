@@ -5,6 +5,12 @@
         <div class="shrink-0 px-12">
           <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">内容確認・決定</h1>
 
+          <!-- ルーム名表示 -->
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-gray-700 mb-2">ルーム名</h2>
+            <p class="text-gray-900 font-semibold">{{ roomCreationStore.roomTitle }}</p>
+          </div>
+
           <!-- Google Map -->
           <div class="h-72 w-full rounded-lg bg-gray-200">
             <GoogleMap
@@ -26,16 +32,7 @@
 
         <!-- 候補場所リスト -->
         <div class="mt-8 space-y-4 overflow-y-auto px-12 flex-1 min-h-0">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-sm font-medium text-gray-700">候補場所</h2>
-            <button
-              @click="handleRetrySearch"
-              class="px-2 py-1 text-xs text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-              :disabled="roomCreationStore.isLoading"
-            >
-              再検索
-            </button>
-          </div>
+          <h2 class="text-sm font-medium text-gray-700 mb-4">候補場所</h2>
 
           <div v-if="roomCreationStore.isLoading" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -105,12 +102,7 @@
         </div>
 
         <!-- ルーム作成ボタン -->
-        <div class="shrink-0 px-12 py-4 bg-white border-t">
-          <div class="mb-4">
-            <h2 class="text-sm font-medium text-gray-700 mb-2">ルーム名</h2>
-            <p class="text-gray-900 font-semibold">{{ roomCreationStore.roomTitle }}</p>
-          </div>
-
+        <div class="shrink-0 px-12 py-4 bg-white">
           <!-- アクションボタン -->
           <div class="flex gap-2">
             <button
@@ -219,16 +211,6 @@ onMounted(() => {
 const handlePlaceToggle = (place: PlaceSearchResult) => {
   roomCreationStore.togglePlaceSelection(place)
 }
-
-const handleRetrySearch = async () => {
-  try {
-    await roomCreationStore.searchPlaces()
-  } catch (error) {
-    alert('場所検索でエラーが発生しました。')
-    console.error('場所検索エラー:', error)
-  }
-}
-
 const handleCreateRoom = async () => {
   if (!roomCreationStore.roomTitle.trim()) {
     alert('ルーム名が設定されていません。')
