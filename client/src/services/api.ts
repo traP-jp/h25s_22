@@ -70,7 +70,7 @@ export const createNewRoom = async (
     const url = `${API_BASE_URL}/room/create`
     console.log('リクエストURL:', url)
     console.log('リクエストデータ:', roomData)
-    
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -88,7 +88,7 @@ export const createNewRoom = async (
 
     const responseText = await response.text()
     console.log('レスポンス生データ:', responseText)
-    
+
     const data = JSON.parse(responseText)
     return data
   } catch (error) {

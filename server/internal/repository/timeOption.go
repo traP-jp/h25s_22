@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -13,14 +12,14 @@ type (
 	timeOption struct {
 		ID        uuid.UUID `db:"id"`
 		RoomID    uuid.UUID `db:"room_id"`
-		StartTime time.Time `db:"start_time"`
-		EndTime   time.Time `db:"end_time"`
+		StartTime string `db:"start_time"`
+		EndTime   string `db:"end_time"`
 	}
 
 	CreateTimeOptionParams struct {
 		RoomID    uuid.UUID `db:"room_id"`
-		StartTime time.Time `db:"start_time"`
-		EndTime   time.Time `db:"end_time"`
+		StartTime string `db:"start_time"`
+		EndTime   string `db:"end_time"`
 	}
 )
 
