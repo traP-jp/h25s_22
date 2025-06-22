@@ -22,24 +22,18 @@ const places = ref([
     id: 1,
     name: '候補地A：東大前のカフェ',
     address: '東京都文京区本郷',
-    votes: 5,
-    isVotedByMe: false,
     image: '/dummy.png',
   },
   {
     id: 2,
     name: '候補地B：早稲田の定食屋',
     address: '東京都新宿区早稲田',
-    votes: 12,
-    isVotedByMe: true,
     image: '/dummy.png',
   },
   {
     id: 3,
     name: '候補地C：東工大近くの公園',
     address: '東京都目黒区大岡山',
-    votes: 8,
-    isVotedByMe: false,
     image: '/dummy.png',
   },
 ])
@@ -48,31 +42,10 @@ const selectedPlaceId = ref(2)
 </script>
 
 <template>
-  <div class="flex w-full items-start justify-center bg-gray-100 p-4">
-    <div
-      class="flex h-[800px] w-[400px] flex-col overflow-hidden rounded-xl border bg-white shadow-lg"
-    >
-      <header
-        class="flex h-10 w-full shrink-0 items-center justify-end border-b border-gray-200 bg-gray-50 px-4"
-      >
-        <svg
-          class="h-6 w-6 text-gray-700"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
-        </svg>
-      </header>
-
+  <div class="flex w-full items-start justify-center bg-white">
+    <div class="flex h-[800px] w-[400px] flex-col overflow-hidden rounded-xl">
       <main class="flex h-full w-full flex-col">
-        <div class="shrink-0 px-12 pt-12">
+        <div class="shrink-0 px-12">
           <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">候補地を確認</h1>
 
           <div class="h-72 w-full rounded-lg bg-gray-200">
