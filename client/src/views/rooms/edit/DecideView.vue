@@ -148,8 +148,7 @@ const roomCreationStore = useRoomCreationStore()
 const isCreating = ref(false)
 
 // Google Maps設定
-const API_KEY =
-  import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBCTIIJoLo5Qj5pWNGFQ-UwP5F7Bq1qhYo'
+const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY
 
 const mapCenter = computed(() => {
   if (roomCreationStore.suggestedPlaces.length === 0) {

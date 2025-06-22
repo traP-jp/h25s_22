@@ -12,7 +12,7 @@ const router = useRouter()
 const roomStore = useRoomStore()
 const voteStore = useVoteStore()
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY || 'MY_API_KEY'
+const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY
 
 // 地図関連のデータ
 const mapCenter = computed(() => {
