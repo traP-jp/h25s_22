@@ -1,49 +1,88 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
+import { useRouter, useRoute } from 'vue-router'
+import { useRoomCreationStore } from '@/stores'
+import type { TimeOption } from '@/types'
+import BasicButton from '@/components/BasicButton.vue'
 
-function goTokouhotipage() {
-  router.push('/rooms/:room_id/reorder-by-preference')
+const router = useRouter()
+const route = useRoute()
+const roomCreationStore = useRoomCreationStore()
+
+const selectedTimeIds = ref(new Set<string>())
+
+// 選択状態を切り替える関数
+const toggle = (slot: TimeOption) => {
+  if (selectedTimeIds.value.has(slot.id)) {
+    selectedTimeIds.value.delete(slot.id)
+  } else {
+    selectedTimeIds.value.add(slot.id)
+  }
 }
 
-import BasicButton from '@/components/BasicButton.vue'
-const isActiveList = ref([false, false, false])
+const handleNext = () => {
+  if (selectedTimeIds.value.size === 0) {
+    alert('参加可能な時間を1つ以上選択してください。')
+    return
+  }
+  const roomId = route.params.room_id as string
+  if (!roomId) {
+    console.error('ルームIDが見つかりません。')
+    return
+  }
+  const selectedIds = Array.from(selectedTimeIds.value)
+  console.log('選択された時間帯のID:', selectedIds)
 
-const toggle = (index: number) => {
-  isActiveList.value[index] = !isActiveList.value[index]
+  router.push(`/rooms/${roomId}/reorder-by-preference`)
 }
 </script>
 
 <template>
-  <div class="py-6 max-w-[400px] max-h-[800px]">
-    <div class="p-4">
-      <h1 class="w-[200px] h-[28px] text-gray-900 mb-4">参加可能な時間を選択</h1>
-    </div>
-    <div class="flex-col space-y-2 rounded-none px-4">
-      <div v-for="(active, index) in isActiveList" :key="index" class="flex items-center">
-        <button
-          @click="toggle(index)"
-          :class="active ? 'bg-sky-400 text-white' : 'bg-gray-200 text-gray-900'"
-          class="py-4 px-6 min-w-[245px] text-left"
-        >
-          日付<br />時間帯
-        </button>
-
-        <button
-          @click="toggle(index)"
-          :class="active ? 'bg-sky-400 text-white' : 'bg-gray-200 text-gray-900'"
-          class="flex items-center justify-center w-13.5 h-20 pr-4"
-        >
-          <div class="flex items-center justify-center w-5 h-5 rounded-full bg-white border">
-            <div v-if="active" class="w-3 h-3 rounded-full bg-sky-400"></div>
-          </div>
-        </button>
-      </div>
+  <div class="flex h-full flex-col p-12">
+    <div class="mb-6 shrink-0">
+      <h1 class="text-xl text-gray-900">参加可能な時間を選択</h1>
     </div>
 
-    <div class="flex rounded-lg p-4 items-center">
-      <BasicButton @click="goTokouhotipage" text="次へ  →" variant="primary" size="large" />
+    <div class="flex-grow space-y-2 overflow-y-auto">
+      <button
+        v-for="slot in roomCreationStore.timeOptions"
+        :key="slot.id"
+        @click="toggle(slot)"
+        class="flex w-full items-center justify-between rounded-lg p-4 py-3 text-left transition-colors"
+        :class="
+          selectedTimeIds.has(slot.id)
+            ? 'bg-sky-400 text-white'
+            : 'border border-gray-200 bg-white text-gray-900 shadow-sm hover:bg-gray-100'
+        "
+      >
+        <div class="flex flex-col leading-tight">
+          <p class="text-base font-light">
+            {{ slot.date }}
+          </p>
+          <p class="text-base font-light">{{ slot.startTime }} - {{ slot.endTime }}</p>
+        </div>
+        <div
+          class="flex h-5 w-5 items-center justify-center rounded-full border"
+          :class="selectedTimeIds.has(slot.id) ? 'border-white bg-white' : 'border-gray-400'"
+        >
+          <div v-if="selectedTimeIds.has(slot.id)" class="h-3 w-3 rounded-full bg-sky-400"></div>
+        </div>
+      </button>
+
+      <p v-if="!roomCreationStore.hasTimeOptions" class="pt-4 text-center text-gray-500">
+        前のページで候補の日時を追加してください。
+      </p>
+    </div>
+
+    <div class="mt-4 shrink-0">
+      <BasicButton
+        @click="handleNext"
+        text="次へ"
+        right-icon="arrow_foward_inv"
+        variant="primary"
+        size="large"
+        class="h-12 w-full"
+      />
     </div>
   </div>
 </template>

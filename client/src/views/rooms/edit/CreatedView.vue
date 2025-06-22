@@ -1,10 +1,22 @@
 <script setup lang="ts">
 // 作成完了ページのロジックをここに追加
 import BasicButton from '@/components/BasicButton.vue'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
 const router = useRouter()
-const room_id = ref('sampleID')
+const route = useRoute()
+const room_id = ref('')
+
+onMounted(() => {
+  const roomId = route.query.roomId as string
+  if (roomId) {
+    room_id.value = roomId
+  } else {
+    alert('ルームIDが見つかりません。')
+    router.push('/')
+  }
+})
 
 function idcopy(id: string) {
   navigator.clipboard.writeText(id)
