@@ -14,8 +14,7 @@ type GetVote struct{
 	RoomID uuid.UUID `json:"roomID"`
 	Name string	`json:"name"`
 	TimeID []uuid.UUID	`json:"timeId"`
-	PlaceID []uuid.UUID	`json:"placeId"`
-	Rank int	`json:"rank"`
+	placeData []repository.PlaceData
 
 }
 func (h *Handler) PostVote(c echo.Context) error {
@@ -30,22 +29,25 @@ func (h *Handler) PostVote(c echo.Context) error {
 		Name: getVote.Name,
 
 	} )
-	lo.Map(getVote.TimeID, func(x uuid.UUID, index int)error{
-			h.repo.CreateTimeVote(context.Background(), repository.CreateTimeVoteParams{
+	timeVotes := lo.Map(getVote.TimeID, func(x uuid.UUID, index int)repository.CreateTimeVoteParams{
+		return repository.CreateTimeVoteParams{
 			UserID: userID,
 			TimeID: x,
-		})
-		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
+		}	
+	})
+	h.repo.CreateTimeVotes(context.Background(), timeVotes)
+
+	placeVotes := lo.Map(getVote.placeData, func(x repository.PlaceData, index int)repository.CreatePlaceVoteParams{
+		return repository.CreatePlaceVoteParams{
+			UserID: userID,
+			PlaceID:x.ID,
+			Rank:x.Rank,
+
+		}
 	})
 
-	lo.Map(getVote.PlaceID, func(x uuid.UUID, index int)error{
-		h.repo.CreatePlaceVote(context.Background(),repository.CreatePlaceVoteParams{
-		UserID : userID,
-    	PlaceID : x,
-   		Rank    : getVote.Rank,  
-	})
-		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
-	})
+
+	h.repo.CreatePlaceVotes(context.Background(),placeVotes)
 	
 	
 
