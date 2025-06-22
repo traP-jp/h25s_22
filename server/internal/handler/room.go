@@ -252,12 +252,3 @@ func (h *Handler) GetRoom(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, res)
 }
-func (h *Handler) PostVote(c echo.Context) error {
-	return c.String(http.StatusOK, "pong")
-}
-func (h *Handler) ChangeVote(c echo.Context) error {
-	return c.String(http.StatusOK, "pong")
-}
-func (h *Handler) GetResult(c echo.Context) error {
-	return c.String(http.StatusOK, "pong")
-}

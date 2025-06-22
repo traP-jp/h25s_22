@@ -35,7 +35,7 @@ func (h *Handler) ChangeVote2(c echo.Context) error {
 	return c.String(http.StatusOK, "success update vote")
 }
 
-func (h *Handler) GetResult2(c echo.Context) error {
+func (h *Handler) GetResult(c echo.Context) error {
 	// roomID := c.Param("roomId")
 
 	return c.String(http.StatusOK, "pong")
