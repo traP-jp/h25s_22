@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { GoogleMap, Marker } from 'vue3-google-map'
 import BasicButton from '@/components/BasicButton.vue'
+import type { PlaceSearchResult } from '@/services/types'
 
 const API_KEY = 'MY_API_KEY' //本来は環境変数などから取得する?
 // 地図関連のデータ,本来は取得したものによって設定
@@ -13,32 +14,59 @@ const markers = ref([
   { id: 'tokodai', position: { lat: 35.6062, lng: 139.683 }, title: '東京科学大学' },
   { id: 'waseda', position: { lat: 35.70902, lng: 139.71937 }, title: '早稲田大学' },
 ])
+
+const getPriceRange = (priceLevel: number | undefined): string => {
+  if (priceLevel === undefined) return ''
+
+  switch (priceLevel) {
+    case 1:
+      return '～ ¥1,000'
+    case 2:
+      return '¥1,000 ～ ¥3,000'
+    case 3:
+      return '¥3,000 ～ ¥8,000'
+    case 4:
+      return '¥8,000 以上'
+    default:
+      return ''
+  }
+}
+
 const nextPage = () => {
   // 次のページへの遷移処理
 }
-// ダミーのデータ
-const places = ref([
+// PlaceSearchResult型のダミーデータ
+const places = ref<PlaceSearchResult[]>([
   {
-    id: 1,
     name: '候補地A：東大前のカフェ',
-    address: '東京都文京区本郷',
-    image: '/dummy.png',
+    placeID: 'ChIJ1abc123def',
+    location: { lat: 35.71267, lng: 139.76195 },
+    photoReference: 'AXQCQNS4aDjR_w686vtMDT-_-2a39aS9tFZU-aqdCL9qRy7yujneEi2P',
+    priceLevel: 2,
+    rating: 4.3,
+    address: '東京都文京区本郷7-3-1',
   },
   {
-    id: 2,
     name: '候補地B：早稲田の定食屋',
-    address: '東京都新宿区早稲田',
-    image: '/dummy.png',
+    placeID: 'ChIJ2def456ghi',
+    location: { lat: 35.70902, lng: 139.71937 },
+    photoReference: 'AXQCQNS4aDjR_w686vtMDT-_-2a39aS9tFZU-aqdCL9qRy7yujneEi2P',
+    priceLevel: 1,
+    rating: 4.1,
+    address: '東京都新宿区早稲田鶴巻町513',
   },
   {
-    id: 3,
     name: '候補地C：東工大近くの公園',
-    address: '東京都目黒区大岡山',
-    image: '/dummy.png',
+    placeID: 'ChIJ3ghi789jkl',
+    location: { lat: 35.6062, lng: 139.683 },
+    photoReference: 'AXQCQNS4aDjR_w686vtMDT-_-2a39aS9tFZU-aqdCL9qRy7yujneEi2P',
+    priceLevel: 0,
+    rating: 3.8,
+    address: '東京都目黒区大岡山2-12-1',
   },
 ])
 
-const selectedPlaceId = ref(2)
+const selectedPlaceId = ref('ChIJ2def456ghi')
 </script>
 
 <template>
@@ -64,24 +92,36 @@ const selectedPlaceId = ref(2)
         <div class="mt-8 space-y-4 overflow-y-auto px-12 flex-12 min-h-0">
           <div
             v-for="place in places"
-            :key="place.id"
-            @click="selectedPlaceId = place.id"
+            :key="place.placeID"
+            @click="selectedPlaceId = place.placeID"
             class="flex min-h-20 w-full cursor-pointer items-start rounded-lg border bg-white p-3 shadow-sm transition-all"
             :class="{
-              'border-green-500 shadow-md ring-1 ring-green-500': selectedPlaceId === place.id,
-              'border-gray-200': selectedPlaceId !== place.id,
+              'border-green-500 shadow-md ring-1 ring-green-500': selectedPlaceId === place.placeID,
+              'border-gray-200': selectedPlaceId !== place.placeID,
             }"
           >
             <img
-              :src="place.image || '/dummy.png'"
+              src="/dummy.png"
               :alt="place.name"
               class="h-16 w-16 shrink-0 rounded-md bg-gray-200 object-cover"
             />
             <div class="ml-3 flex-grow">
               <p class="font-semibold text-gray-800">{{ place.name }}</p>
               <p class="text-xs text-gray-500">{{ place.address }}</p>
-              <div class="mt-1 flex items-center">
-                <svg class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"></svg>
+              <div class="mt-1 flex items-center space-x-2">
+                <!-- 評価を表示 -->
+                <div v-if="place.rating" class="flex items-center">
+                  <svg class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                    />
+                  </svg>
+                  <span class="text-sm text-gray-600 ml-1">{{ place.rating }}</span>
+                </div>
+                <!-- 価格レベルを表示 -->
+                <div v-if="place.priceLevel !== undefined" class="flex items-center">
+                  <span class="text-xs text-gray-500">{{ getPriceRange(place.priceLevel) }}</span>
+                </div>
               </div>
             </div>
           </div>
