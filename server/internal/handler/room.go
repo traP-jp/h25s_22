@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Room作成リクエスト
 type (
 	TimeOption struct {
 		StartTime time.Time `json:"start_time"` // 開始時間
@@ -38,8 +37,18 @@ type (
 		TimeOptions  []ReturnTimeOption  `json:"time_options"`  // 作成された時間候補
 		PlaceOptions []ReturnPlaceOption `json:"place_options"` // 作成された場所候補
 	}
+
+	GetRoomResponse struct {
+		RoomID       uuid.UUID           `json:"room_id"`       // ルームのID
+		CenterPoint  string              `json:"center_point"`  // 中心位置のGoogle Place ID
+		Radius       int                 `json:"radius"`        // 半径
+		PlaceMax     int                 `json:"place_max"`     // 最大値
+		TimeOptions  []ReturnTimeOption  `json:"time_options"`  // 時間候補
+		PlaceOptions []ReturnPlaceOption `json:"place_options"` // 場所候補
+	}
 )
 
+// Room作成リクエスト
 func (h *Handler) CreateRoom(c echo.Context) error {
 	var req CreateRoomRequest
 	if err := c.Bind(&req); err != nil { //リクエストをバインド
@@ -122,7 +131,48 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 func (h *Handler) GetRoom(c echo.Context) error {
-	return c.String(http.StatusOK, "pong")
+	roomIDStr := c.Param("room_id") // パラメータからroom_idを取得
+	roomID, err := uuid.Parse(roomIDStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid room_id")
+	}
+	room, err := h.repo.GetRoom(c.Request().Context(), roomID) // ルーム情報を取得
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "room not found")
+	}
+	roomTimeOptions, err := h.repo.GetTimeOptionsByRoomID(c.Request().Context(), roomID) // ルームIDに紐づくtimeOptionsを取得
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve time options")
+	}
+	roomPlaces, err := h.repo.GetPlacesByRoomID(c.Request().Context(), roomID) // ルームIDに紐づくplacesを取得
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve place options")
+	}
+
+	resTimeOptions := make([]ReturnTimeOption, len(roomTimeOptions)) // レスポンス用のTimeOptionスライス
+	resPlaceOptions := make([]ReturnPlaceOption, len(roomPlaces))    // レスポンス用のPlaceOptionスライス
+	for i, timeOption := range roomTimeOptions {                     // ルームIDに紐づくtimeOptionsをレスポンス用に変換
+		resTimeOptions[i] = ReturnTimeOption{
+			ID:        timeOption.ID,
+			StartTime: timeOption.StartTime,
+			EndTime:   timeOption.EndTime,
+		}
+	}
+	for i, placeOption := range roomPlaces { // ルームIDに紐づくplacesをレスポンス用に変換
+		resPlaceOptions[i] = ReturnPlaceOption{
+			ID:            placeOption.ID,
+			GooglePlaceID: placeOption.GooglePlaceID,
+		}
+	}
+	res := GetRoomResponse{ // レスポンスの構築
+		RoomID:       room.ID,
+		CenterPoint:  room.CenterPoint,
+		Radius:       room.Radius,
+		PlaceMax:     room.PlaceMax,
+		TimeOptions:  resTimeOptions,
+		PlaceOptions: resPlaceOptions,
+	}
+	return c.JSON(http.StatusOK, res)
 }
 func (h *Handler) PostVote(c echo.Context) error {
 	return c.String(http.StatusOK, "pong")
