@@ -78,11 +78,11 @@ func (h *Handler) GetResult(c echo.Context) error {
 	roomIDStr := c.Param("roomID")
 	roomID, err := uuid.Parse(roomIDStr)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("fatal err: %s", err))
 	}
 	roomResult, err := h.repo.GetRoomResult(context.Background(), roomID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("fatal err: %s", err))
 	}
 
 	return c.JSON(http.StatusOK, roomResult)
