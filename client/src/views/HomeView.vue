@@ -17,7 +17,7 @@ import BasicButton from '@/components/BasicButton.vue'
   <div class="py-6 max-w-[400px] max-h-[800px]">
     <div class="rounded-lg p-8">
       <div class="text-center">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">これはアプリタイトル</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-4 mt-18">これはアプリタイトル</h1>
         <p class="text-lg text-gray-600 mb-[196px]">これはアプリサブタイトル</p>
         <div class="flex flex-col items-center space-y-4">
           <BasicButton
@@ -32,7 +32,7 @@ import BasicButton from '@/components/BasicButton.vue'
             text="ルームに参加"
             variant="secondary"
             size="large"
-            leftIcon="Door_open"
+            leftIcon="door_open"
           />
         </div>
       </div>
