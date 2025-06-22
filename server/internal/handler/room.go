@@ -2,11 +2,14 @@ package handler
 
 import (
 	"backend/internal/repository"
+	"context"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"googlemaps.github.io/maps"
 )
 
 type (
@@ -28,8 +31,14 @@ type (
 		EndTime   time.Time `json:"end_time"`   // 終了時間
 	}
 	ReturnPlaceOption struct {
-		ID            uuid.UUID `json:"id"`              // 場所候補のID
-		GooglePlaceID string    `json:"google_place_id"` // Google Place ID
+		ID             uuid.UUID   `json:"id"`              // 場所候補のID
+		GooglePlaceID  string      `json:"google_place_id"` // Google Place ID
+		Name           string      `json:"name"`
+		Location       maps.LatLng `json:"location"`
+		PhotoReference string      `json:"photoReference"`
+		PriceLevel     int         `json:"priceLevel"`
+		Rating         float32     `json:"rating"`
+		Address        string      `json:"address"`
 	}
 
 	CreateRoomResponse struct {
@@ -47,6 +56,37 @@ type (
 		PlaceOptions []ReturnPlaceOption `json:"place_options"` // 場所候補
 	}
 )
+
+func (h *Handler) GetClient(c echo.Context) (*maps.Client, error) {
+	api_key, ok := os.LookupEnv("GOOGLE_API_KEY")
+	if !ok {
+		return nil, c.String(http.StatusInternalServerError, "Not Found APIKey")
+	}
+	client, err := maps.NewClient(maps.WithAPIKey(api_key))
+	if err != nil {
+		return nil, c.String(http.StatusInternalServerError, "Failed to create Google Maps client")
+	}
+	return client, nil
+}
+
+func (h *Handler) GetPlaceDetail(c echo.Context, client maps.Client, googlePlaceID string) (GetSearch, error) {
+	r := &maps.PlaceDetailsRequest{
+		PlaceID: googlePlaceID,
+	}
+	result, err := client.PlaceDetails(context.Background(), r)
+	if err != nil {
+		return GetSearch{}, err
+	}
+	return GetSearch{
+		Name:           result.Name,
+		PlaceID:        result.PlaceID,
+		Location:       result.Geometry.Location,
+		PhotoReference: result.Photos[0].PhotoReference,
+		PriceLevel:     result.PriceLevel,
+		Rating:         result.Rating,
+		Address:        result.Vicinity,
+	}, nil
+}
 
 // Room作成リクエスト
 func (h *Handler) CreateRoom(c echo.Context) error {
@@ -116,10 +156,27 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 			EndTime:   timeOption.EndTime,
 		}
 	}
-	for i, placeOption := range roomPlaces { // ルームIDに紐づくplacesをレスポンス用に変換
-		resPlaceOptions[i] = ReturnPlaceOption{
-			ID:            placeOption.ID,
-			GooglePlaceID: placeOption.GooglePlaceID,
+
+	// placesの詳細情報をGoogle Maps APIから取得する
+	googleClient, err := h.GetClient(c) // Google Mapsクライアントの取得
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create Google Maps client"})
+	}
+
+	for i, placeOption := range roomPlaces {
+		detail, err := h.GetPlaceDetail(c, *googleClient, placeOption.GooglePlaceID) // Google Placeの詳細情報を取得
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve place details"})
+		}
+		resPlaceOptions[i] = ReturnPlaceOption{ // レスポンス用に変換
+			ID:             placeOption.ID,
+			GooglePlaceID:  placeOption.GooglePlaceID,
+			Name:           detail.Name,
+			Location:       detail.Location,
+			PhotoReference: detail.PhotoReference,
+			PriceLevel:     detail.PriceLevel,
+			Rating:         detail.Rating,
+			Address:        detail.Address,
 		}
 	}
 
@@ -158,10 +215,26 @@ func (h *Handler) GetRoom(c echo.Context) error {
 			EndTime:   timeOption.EndTime,
 		}
 	}
-	for i, placeOption := range roomPlaces { // ルームIDに紐づくplacesをレスポンス用に変換
-		resPlaceOptions[i] = ReturnPlaceOption{
-			ID:            placeOption.ID,
-			GooglePlaceID: placeOption.GooglePlaceID,
+	// placesの詳細情報をGoogle Maps APIから取得する
+	googleClient, err := h.GetClient(c) // Google Mapsクライアントの取得
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create Google Maps client")
+	}
+
+	for i, placeOption := range roomPlaces {
+		detail, err := h.GetPlaceDetail(c, *googleClient, placeOption.GooglePlaceID) // Google Placeの詳細情報を取得
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve place details")
+		}
+		resPlaceOptions[i] = ReturnPlaceOption{ // レスポンス用に変換
+			ID:             placeOption.ID,
+			GooglePlaceID:  placeOption.GooglePlaceID,
+			Name:           detail.Name,
+			Location:       detail.Location,
+			PhotoReference: detail.PhotoReference,
+			PriceLevel:     detail.PriceLevel,
+			Rating:         detail.Rating,
+			Address:        detail.Address,
 		}
 	}
 	res := GetRoomResponse{ // レスポンスの構築
