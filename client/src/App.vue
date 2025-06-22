@@ -24,7 +24,7 @@ const handleMenuAction = (action: string) => {
       break
     case 'join-room':
       // TODO: 不適切
-      router.push('/rooms/123/places')
+      router.push('/rooms/Default/room-participation')
       break
     case 'close':
       break

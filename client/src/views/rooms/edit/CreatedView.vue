@@ -2,7 +2,8 @@
 // 作成完了ページのロジックをここに追加
 import BasicButton from '@/components/BasicButton.vue'
 import { ref } from 'vue'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const room_id = ref('sampleID')
 
 function idcopy(id: string) {
@@ -10,10 +11,12 @@ function idcopy(id: string) {
 }
 
 function backhome() {
-  location.href = 'https://google.com'
+  router.push('/')
 }
 
-function sharelink() {}
+function sharelink(room_id: string) {
+  navigator.share({ title: 'ルームをシェア', url: `/rooms/${room_id}/room-participation` })
+}
 </script>
 
 <template>
@@ -35,7 +38,7 @@ function sharelink() {}
           text="リンクをシェア"
           variant="secondary"
           left-icon="link-variant"
-          @click="sharelink"
+          @click="sharelink(room_id)"
         />
       </div>
     </div>

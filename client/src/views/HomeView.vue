@@ -7,7 +7,7 @@ function goToeditpage() {
 }
 
 function goTovotepage() {
-  router.push('/rooms/:room_id/places')
+  router.push('/rooms/Default/room-participation')
 }
 
 import BasicButton from '@/components/BasicButton.vue'

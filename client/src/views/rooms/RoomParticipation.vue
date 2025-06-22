@@ -1,8 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import BasicInput from '@/components/BasicInput.vue'
 import BasicButton from '@/components/BasicButton.vue'
-const room_id = ref('')
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const path = ref(route.path)
+const room_id = ref(path)
+onMounted(() => {
+  room_id.value = room_id.value.replace('/room-participation', '')
+  room_id.value = room_id.value.replace('/rooms/', '')
+  if (room_id.value === 'Default') {
+    room_id.value = ''
+  }
+})
 
 function participate(roomid: string) {
   if (roomid !== '') {
