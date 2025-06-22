@@ -64,6 +64,11 @@ const router = createRouter({
       name: 'rooms-participate',
       component: () => import('../views/rooms/RoomParticipation.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/NotFound.vue'),
+    },
   ],
 })
 
