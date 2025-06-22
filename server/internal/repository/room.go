@@ -16,7 +16,7 @@ type (
 		PlaceMax    int       `db:"place_max"`
 		CenterPoint string    `db:"center_point"`
 		Radius      int       `db:"radius"`
-		CreateAt    time.Time `db:"create_at"`
+		CreateAt    string `db:"create_at"`
 	}
 
 	CreateRoomParams struct {
