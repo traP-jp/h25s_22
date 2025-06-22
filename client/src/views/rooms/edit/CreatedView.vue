@@ -10,10 +10,12 @@ function idcopy(id: string) {
 }
 
 function backhome() {
-  location.href = 'https://google.com'
+  location.href = '/'
 }
 
-function sharelink() {}
+function sharelink(room_id: string) {
+  navigator.share({title: "ルームをシェア", url: `/rooms/${room_id}/room-participation`})
+}
 </script>
 
 <template>
@@ -35,7 +37,7 @@ function sharelink() {}
           text="リンクをシェア"
           variant="secondary"
           left-icon="link-variant"
-          @click="sharelink"
+          @click="sharelink(room_id)"
         />
       </div>
     </div>
