@@ -13,9 +13,10 @@ services:
       APP_ADDR: :8080
       NS_MARIADB_USER: root
       NS_MARIADB_PASS: pass
-      NS_MARIADB_HOST: db
+      NS_MARIADB_HOSTNAME: db
       NS_MARIADB_PORT: "3306"
       NS_MARIADB_NAME: app
+      NS_MARIADB_DATABASE: db
     depends_on:
       db:
         condition: service_healthy

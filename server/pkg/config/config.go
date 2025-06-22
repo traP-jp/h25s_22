@@ -31,7 +31,7 @@ func MySQL() *mysql.Config {
 		getEnv("NS_MARIADB_HOSTNAME", "localhost"),
 		getEnv("NS_MARIADB_PORT", "3306"),
 	)
-	c.DBName = getEnv("NS_MARIADB_HOSTNAME", "app")
+	c.DBName = getEnv("NS_MARIADB_DATABASE", "app")
 	c.Collation = "utf8mb4_general_ci"
 	c.AllowNativePasswords = true
 
