@@ -14,14 +14,14 @@ type (
 		ID          uuid.UUID `db:"id"`
 		PlaceMax    int       `db:"place_max"`
 		CenterPoint string    `db:"center_point"`
-		Radius      float64   `db:"radius"`
+		Radius      int       `db:"radius"`
 		CreateAt    time.Time `db:"create_at"`
 	}
 
 	CreateRoomParams struct {
-		PlaceMax    int     `db:"place_max"`
-		CenterPoint string  `db:"center_point"`
-		Radius      float64 `db:"radius"`
+		PlaceMax    int    `db:"place_max"`
+		CenterPoint string `db:"center_point"`
+		Radius      int    `db:"radius"`
 	}
 )
 
