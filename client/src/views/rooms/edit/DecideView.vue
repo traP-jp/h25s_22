@@ -1,33 +1,36 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-white rounded-lg shadow p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">内容確認・決定</h1>
+  <div class="flex w-full items-start justify-center bg-white">
+    <div class="flex h-screen w-[400px] max-w-md flex-col overflow-hidden rounded-xl">
+      <main class="flex h-full w-full flex-col">
+        <div class="shrink-0 px-12">
+          <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">内容確認・決定</h1>
 
-        <!-- 日時情報の確認 -->
-        <div class="mb-8">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">選択された日時</h2>
-          <div class="space-y-2">
-            <div
-              v-for="timeOption in roomCreationStore.timeOptions"
-              :key="timeOption.id"
-              class="bg-blue-50 p-3 rounded-md border border-blue-200"
+          <!-- Google Map -->
+          <div class="h-72 w-full rounded-lg bg-gray-200">
+            <GoogleMap
+              :api-key="API_KEY"
+              :center="mapCenter"
+              :zoom="mapZoom"
+              style="width: 100%; height: 100%"
+              class="rounded-lg"
             >
-              <span class="font-medium">{{ timeOption.date }}</span>
-              <span class="ml-4 text-gray-600"
-                >{{ timeOption.startTime }} 〜 {{ timeOption.endTime }}</span
-              >
-            </div>
+              <Marker
+                v-for="marker in markers"
+                :key="marker.id"
+                :options="{ position: marker.position, title: marker.title }"
+                @click="() => onMarkerClick(marker.id)"
+              />
+            </GoogleMap>
           </div>
         </div>
 
-        <!-- 場所検索結果 -->
-        <div class="mb-8">
+        <!-- 候補場所リスト -->
+        <div class="mt-8 space-y-4 overflow-y-auto px-12 flex-1 min-h-0">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">候補場所</h2>
+            <h2 class="text-sm font-medium text-gray-700">候補場所</h2>
             <button
               @click="handleRetrySearch"
-              class="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+              class="px-2 py-1 text-xs text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
               :disabled="roomCreationStore.isLoading"
             >
               再検索
@@ -36,12 +39,12 @@
 
           <div v-if="roomCreationStore.isLoading" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">検索中...</span>
+            <span class="ml-3 text-sm">検索中...</span>
           </div>
 
           <div
             v-else-if="roomCreationStore.suggestedPlaces.length === 0"
-            class="text-center py-8 text-gray-500"
+            class="text-center py-8 text-gray-500 text-sm"
           >
             候補場所が見つかりませんでした。
             <button @click="goBackToPlace" class="text-blue-600 underline ml-2">
@@ -49,35 +52,43 @@
             </button>
           </div>
 
-          <div v-else class="grid gap-4 md:grid-cols-2">
+          <div v-else class="space-y-4">
             <div
               v-for="place in roomCreationStore.suggestedPlaces"
               :key="place.placeID"
-              class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+              @click="handlePlaceToggle(place)"
+              class="flex min-h-20 w-full cursor-pointer items-start rounded-lg border bg-white p-3 shadow-sm transition-all"
               :class="{
-                'border-blue-500 bg-blue-50': roomCreationStore.selectedPlaces.find(
-                  (p: any) => p.id === place.placeID,
-                ),
+                'border-blue-500 shadow-md ring-1 ring-blue-500':
+                  roomCreationStore.selectedPlaces.find((p: any) => p.placeID === place.placeID),
                 'border-gray-200': !roomCreationStore.selectedPlaces.find(
-                  (p: any) => p.id === place.placeID,
+                  (p: any) => p.placeID === place.placeID,
                 ),
               }"
-              @click="handlePlaceToggle(place)"
             >
-              <h3 class="font-semibold text-gray-900">{{ place.name }}</h3>
-              <p class="text-sm text-gray-600 mt-1">{{ place.address }}</p>
-              <div v-if="place.rating" class="flex items-center mt-2">
-                <span class="text-yellow-500">★</span>
-                <span class="text-sm text-gray-600 ml-1">{{ place.rating }}</span>
-              </div>
-              <div v-if="place.types && place.types.length > 0" class="mt-2">
-                <span
-                  v-for="type in place.types.slice(0, 2)"
-                  :key="type"
-                  class="inline-block bg-gray-100 text-xs px-2 py-1 rounded-full mr-1"
-                >
-                  {{ type }}
-                </span>
+              <img
+                src="/dummy.png"
+                :alt="place.name"
+                class="h-16 w-16 shrink-0 rounded-md bg-gray-200 object-cover"
+              />
+              <div class="ml-3 flex-grow">
+                <p class="font-semibold text-gray-800">{{ place.name }}</p>
+                <p class="text-xs text-gray-500">{{ place.address }}</p>
+                <div class="mt-1 flex items-center space-x-2">
+                  <!-- 評価を表示 -->
+                  <div v-if="place.rating" class="flex items-center">
+                    <svg class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                      />
+                    </svg>
+                    <span class="text-sm text-gray-600 ml-1">{{ place.rating }}</span>
+                  </div>
+                  <!-- 価格レベルを表示 -->
+                  <div v-if="place.priceLevel !== undefined" class="flex items-center">
+                    <span class="text-xs text-gray-500">{{ getPriceRange(place.priceLevel) }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -93,83 +104,110 @@
           </div>
         </div>
 
-        <!-- ルーム作成フォーム -->
-        <div class="mb-8">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">ルーム情報</h2>
-          <div class="space-y-4">
-            <div>
-              <label for="room-name" class="block text-sm font-medium text-gray-700 mb-2">
-                ルーム名 <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="room-name"
-                v-model="roomName"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="ルーム名を入力してください"
-              />
-            </div>
-            <div>
-              <label for="room-description" class="block text-sm font-medium text-gray-700 mb-2">
-                説明（任意）
-              </label>
-              <textarea
-                id="room-description"
-                v-model="roomDescription"
-                rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="ルームの説明を入力してください"
-              ></textarea>
-            </div>
+        <!-- ルーム作成ボタン -->
+        <div class="shrink-0 px-12 py-4 bg-white border-t">
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-gray-700 mb-2">ルーム名</h2>
+            <p class="text-gray-900 font-semibold">{{ roomCreationStore.roomTitle }}</p>
+          </div>
+
+          <!-- アクションボタン -->
+          <div class="flex gap-2">
+            <button
+              @click="goBackToPlace"
+              class="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              :disabled="isCreating"
+            >
+              戻る
+            </button>
+            <button
+              @click="handleCreateRoom"
+              class="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="isCreating || roomCreationStore.suggestedPlaces.length === 0"
+            >
+              <span v-if="isCreating">作成中...</span>
+              <span v-else>ルームを作成</span>
+            </button>
+          </div>
+
+          <!-- エラー表示 -->
+          <div
+            v-if="roomCreationStore.error"
+            class="mt-2 p-2 bg-red-50 border border-red-200 rounded-md"
+          >
+            <p class="text-red-800 text-xs">{{ roomCreationStore.error }}</p>
           </div>
         </div>
-
-        <!-- アクションボタン -->
-        <div class="flex gap-4 justify-end">
-          <button
-            @click="goBackToPlace"
-            class="px-6 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            :disabled="isCreating"
-          >
-            戻る
-          </button>
-          <button
-            @click="handleCreateRoom"
-            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="
-              isCreating || !roomName.trim() || roomCreationStore.suggestedPlaces.length === 0
-            "
-          >
-            <span v-if="isCreating">作成中...</span>
-            <span v-else>ルームを作成</span>
-          </button>
-        </div>
-
-        <!-- エラー表示 -->
-        <div
-          v-if="roomCreationStore.error"
-          class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md"
-        >
-          <p class="text-red-800 text-sm">{{ roomCreationStore.error }}</p>
-        </div>
-      </div>
+      </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { GoogleMap, Marker } from 'vue3-google-map'
 import { useRoomCreationStore } from '@/stores'
 import type { PlaceSearchResult } from '@/services/types'
 
 const router = useRouter()
 const roomCreationStore = useRoomCreationStore()
 
-const roomName = ref('')
-const roomDescription = ref('')
 const isCreating = ref(false)
+
+// Google Maps設定
+const API_KEY =
+  import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBCTIIJoLo5Qj5pWNGFQ-UwP5F7Bq1qhYo'
+
+// 地図の中心とズームレベルを候補場所から計算
+const mapCenter = computed(() => {
+  if (roomCreationStore.suggestedPlaces.length === 0) {
+    return { lat: 35.68, lng: 139.73 } // デフォルト（東京）
+  }
+
+  const places = roomCreationStore.suggestedPlaces
+  const avgLat = places.reduce((sum, place) => sum + place.location.lat, 0) / places.length
+  const avgLng = places.reduce((sum, place) => sum + place.location.lng, 0) / places.length
+
+  return { lat: avgLat, lng: avgLng }
+})
+
+const mapZoom = ref(12)
+
+// 候補場所からマーカーを生成
+const markers = computed(() => {
+  return roomCreationStore.suggestedPlaces.map((place) => ({
+    id: place.placeID,
+    position: place.location,
+    title: place.name,
+  }))
+})
+
+// 価格レベルを金額範囲に変換
+const getPriceRange = (priceLevel: number | undefined): string => {
+  if (priceLevel === undefined) return ''
+
+  switch (priceLevel) {
+    case 1:
+      return '～ ¥1,000'
+    case 2:
+      return '¥1,000 ～ ¥3,000'
+    case 3:
+      return '¥3,000 ～ ¥8,000'
+    case 4:
+      return '¥8,000 以上'
+    default:
+      return ''
+  }
+}
+
+// マーカークリック時の処理
+const onMarkerClick = (placeID: string) => {
+  const place = roomCreationStore.suggestedPlaces.find((p) => p.placeID === placeID)
+  if (place) {
+    handlePlaceToggle(place)
+  }
+}
 
 onMounted(() => {
   if (!roomCreationStore.canProceedToDecide) {
@@ -192,15 +230,15 @@ const handleRetrySearch = async () => {
 }
 
 const handleCreateRoom = async () => {
-  if (!roomName.value.trim()) {
-    alert('ルーム名を入力してください。')
+  if (!roomCreationStore.roomTitle.trim()) {
+    alert('ルーム名が設定されていません。')
     return
   }
 
   isCreating.value = true
 
   try {
-    const result = await roomCreationStore.createNewRoom(roomName.value, roomDescription.value)
+    const result = await roomCreationStore.createNewRoom()
 
     if (result && result.success) {
       alert('ルームが作成されました！')
