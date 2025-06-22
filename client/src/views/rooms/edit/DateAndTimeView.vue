@@ -125,7 +125,7 @@ const removeSchedule = (timeOptionId: string) => {
               >
             </div>
             <button
-              @click="removeSchedule(timeOption.date + timeOption.startTime)"
+              @click="removeSchedule(timeOption.id)"
               class="ml-2 text-red-500 transition-all hover:text-red-700"
               aria-label="Remove schedule"
             >
