@@ -28,7 +28,7 @@ func MySQL() *mysql.Config {
 	c.Net = getEnv("DB_NET", "tcp")
 	c.Addr = fmt.Sprintf(
 		"%s:%s",
-		getEnv("NS_MARIADB_HOST", "localhost"),
+		getEnv("NS_MARIADB_HOSTNAME", "localhost"),
 		getEnv("NS_MARIADB_PORT", "3306"),
 	)
 	c.DBName = getEnv("NS_MARIADB_HOSTNAME", "app")
