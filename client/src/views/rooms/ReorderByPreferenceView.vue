@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full items-start justify-center">
     <div class="flex w-[400px] flex-col">
-      <div class="box-border w-full flex-grow overflow-y-auto px-12 pt-12">
+      <div class="box-border w-full flex-grow overflow-y-auto px-12">
         <div class="w-full">
           <h1 class="mb-8 h-9 text-xl font-medium leading-9">候補地を希望順に並び替え</h1>
 

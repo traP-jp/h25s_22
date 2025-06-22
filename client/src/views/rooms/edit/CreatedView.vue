@@ -19,7 +19,7 @@ function sharelink() {}
 <template>
   <div class="container">
     <div class="flex flex-col gap-4 justify-center items-center">
-      <h1 class="w-75 size-7">ルームを作成しました！</h1>
+      <h1 class="w-75 size-7 header">ルームを作成しました！</h1>
       <div class="roomid-box w-75 size-30 flex gap-4 flex flex-col justify-center items-center">
         <div class="box-header w-64 size-8">ルームID</div>
         <div class="size-6 w-64 flex">
@@ -43,6 +43,11 @@ function sharelink() {}
 </template>
 
 <style>
+.header{
+  font-weight: bold;
+  font-size: large;
+}
+
 .roomid-box {
   background-color: #ffffff;
   grid-row: 4/5;
