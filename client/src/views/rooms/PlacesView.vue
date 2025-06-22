@@ -1,50 +1,85 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
 import BasicButton from '@/components/BasicButton.vue'
+import { useRoomCreationStore } from '@/stores'
 
-const API_KEY = 'MY_API_KEY' //本来は環境変数などから取得する?
-// 地図関連のデータ,本来は取得したものによって設定
-const mapCenter = ref({ lat: 35.68, lng: 139.73 })
-const mapZoom = ref(12)
-
-const markers = ref([
-  { id: 'todai', position: { lat: 35.71267, lng: 139.76195 }, title: '東京大学' },
-  { id: 'tokodai', position: { lat: 35.6062, lng: 139.683 }, title: '東京科学大学' },
-  { id: 'waseda', position: { lat: 35.70902, lng: 139.71937 }, title: '早稲田大学' },
-])
-const nextPage = () => {
-  // 次のページへの遷移処理
+interface MapPosition {
+  lat: number
+  lng: number
 }
-// ダミーのデータ
-const places = ref([
-  {
-    id: 1,
-    name: '候補地A：東大前のカフェ',
-    address: '東京都文京区本郷',
-    votes: 5,
-    isVotedByMe: false,
-    image: '/dummy.png',
-  },
-  {
-    id: 2,
-    name: '候補地B：早稲田の定食屋',
-    address: '東京都新宿区早稲田',
-    votes: 12,
-    isVotedByMe: true,
-    image: '/dummy.png',
-  },
-  {
-    id: 3,
-    name: '候補地C：東工大近くの公園',
-    address: '東京都目黒区大岡山',
-    votes: 8,
-    isVotedByMe: false,
-    image: '/dummy.png',
-  },
-])
+interface MarkerData {
+  id: string
+  position: MapPosition
+  title: string
+}
 
-const selectedPlaceId = ref(2)
+//APIキーを.envから取得する
+const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY
+// 地図関連のデータ,本来は取得したものによって設定
+const router = useRouter()
+const roomCreationStore = useRoomCreationStore()
+
+const placesData = roomCreationStore.suggestedPlaces.map((place) => ({
+  id: place.placeID, 
+  position: {
+    lat: place.location.lat,
+    lng: place.location.lng,
+  },
+  address: place.address,
+  title: place.name,
+}));
+// 開発環境のため、ダミーデータをplacesDataに設定
+if (placesData.length === 0) {
+  placesData.push({
+    id: '1',
+    position: { lat: 35.681236, lng: 139.767125
+    },
+    address: '東京都千代田区丸の内1丁目9-1',
+    title: '東京駅',
+  })
+  placesData.push({
+    id: '2',
+    position: { lat: 35.689487, lng: 139.691706
+    },
+    address: '東京都新宿区西新宿1丁目1-1',
+    title: '新宿駅',
+  })
+  placesData.push({
+    id: '3',
+    position: { lat: 35.658581, lng: 139.745433
+    },
+    address: '東京都港区六本木6丁目10-1',
+    title: '渋谷駅',
+  })
+}
+// 地図の中心座標をplacesDataの最初の要素から取得
+const mapCenter = ref<MapPosition>({
+  lat: placesData.length > 0 ? placesData[0].position.lat :
+
+  35.681236,
+  lng: placesData.length > 0 ? placesData[0].position.lng : 139.767125, 
+})
+// 地図のズームレベル
+const mapZoom = ref(10)
+
+// マーカーのデータをplacesDataから取得
+const markers = ref<MarkerData[]>(placesData.map((place) => ({
+  id: place.id,
+  position: place.position,
+  title: place.title,
+})))
+
+
+const nextPage = () => {
+  if (roomCreationStore.selectedPlaces.length === 0) {
+    alert('候補地を1つ以上選択してください。')
+    return
+  }
+  router.push({ name: 'rooms-edit-decide' }) 
+}
+
 </script>
 
 <template>
@@ -52,25 +87,6 @@ const selectedPlaceId = ref(2)
     <div
       class="flex h-[800px] w-[400px] flex-col overflow-hidden rounded-xl border bg-white shadow-lg"
     >
-      <header
-        class="flex h-10 w-full shrink-0 items-center justify-end border-b border-gray-200 bg-gray-50 px-4"
-      >
-        <svg
-          class="h-6 w-6 text-gray-700"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
-        </svg>
-      </header>
-
       <main class="flex h-full w-full flex-col">
         <div class="shrink-0 px-12 pt-12">
           <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">候補地を確認</h1>
@@ -90,23 +106,23 @@ const selectedPlaceId = ref(2)
 
         <div class="mt-8 space-y-4 overflow-y-auto px-12 flex-12 min-h-0">
           <div
-            v-for="place in places"
+            v-for="place in placesData"
             :key="place.id"
             @click="selectedPlaceId = place.id"
             class="flex min-h-20 w-full cursor-pointer items-start rounded-lg border bg-white p-3 shadow-sm transition-all"
             :class="{
               'border-green-500 shadow-md ring-1 ring-green-500': selectedPlaceId === place.id,
+
               'border-gray-200': selectedPlaceId !== place.id,
             }"
           >
-            <img
-              :src="place.image || '/dummy.png'"
-              :alt="place.name"
-              class="h-16 w-16 shrink-0 rounded-md bg-gray-200 object-cover"
-            />
+
+
             <div class="ml-3 flex-grow">
-              <p class="font-semibold text-gray-800">{{ place.name }}</p>
+              <p class="font-semibold text-gray-800">{{ place.title }}</p>
+
               <p class="text-xs text-gray-500">{{ place.address }}</p>
+
               <div class="mt-1 flex items-center">
                 <svg class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"></svg>
               </div>
