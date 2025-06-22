@@ -5,7 +5,23 @@
         <div class="w-full">
           <h1 class="mb-8 h-9 text-xl font-medium leading-9">候補地を希望順に並び替え</h1>
 
-          <div class="space-y-3">
+          <!-- ローディング状態 -->
+          <div v-if="roomStore.isLoading" class="flex justify-center py-8">
+            <div class="text-gray-500">候補地を読み込み中...</div>
+          </div>
+
+          <!-- エラー状態 -->
+          <div v-else-if="roomStore.error" class="flex justify-center py-8">
+            <div class="text-red-500">{{ roomStore.error }}</div>
+          </div>
+
+          <!-- 投票エラー -->
+          <div v-if="voteStore.error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div class="text-red-700 text-sm">{{ voteStore.error }}</div>
+          </div>
+
+          <!-- 候補地リスト -->
+          <div v-else-if="locations.length > 0" class="space-y-3">
             <div
               v-for="(location, index) in displayLocations"
               :key="location.id"
@@ -37,7 +53,7 @@
                   </div>
                   <div>
                     <h3 class="font-medium text-gray-800">{{ location.name }}</h3>
-                    <p class="text-sm text-gray-500">{{ location.distance }}</p>
+                    <p class="text-sm text-gray-500">{{ location.address || '住所情報なし' }}</p>
                   </div>
                 </div>
 
@@ -86,6 +102,34 @@
               </div>
             </div>
           </div>
+
+          <!-- 候補地がない場合 -->
+          <div v-else class="flex justify-center py-8">
+            <div class="text-gray-500">候補地がありません</div>
+          </div>
+
+          <!-- 投票送信ボタン -->
+          <div v-if="locations.length > 0" class="mt-8 space-y-4">
+            <div class="text-sm text-gray-600">
+              <p>ユーザー名: {{ voteStore.userName }}</p>
+              <p>選択した時間: {{ voteStore.selectedTimeIds.length }}件</p>
+              <p>候補地: {{ locations.length }}件</p>
+            </div>
+
+            <button
+              @click="handleSubmitVote"
+              :disabled="!voteStore.canSubmitVote || voteStore.isSubmitting"
+              :class="[
+                'w-full py-3 px-4 rounded-lg font-medium transition-colors',
+                voteStore.canSubmitVote && !voteStore.isSubmitting
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed',
+              ]"
+            >
+              <span v-if="voteStore.isSubmitting">投票中...</span>
+              <span v-else>投票を送信</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -111,7 +155,6 @@
           </div>
           <div>
             <h3 class="font-medium text-gray-800">{{ locations[draggedIndex]?.name }}</h3>
-            <p class="text-sm text-gray-500">{{ locations[draggedIndex]?.distance }}</p>
           </div>
         </div>
 
@@ -133,21 +176,90 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useRoomStore } from '@/stores/room'
+import { useVoteStore } from '@/stores/vote'
+import type { PlaceVoteData } from '@/services/types'
 
 interface Location {
-  id: number
+  id: string
   name: string
-  distance: string
+  address?: string
 }
 
-const locations = ref<Location[]>([
-  { id: 1, name: 'カフェ SUNNY', distance: '渋谷駅徒歩5分' },
-  { id: 2, name: 'イタリアン Bella Vista', distance: '渋谷駅徒歩7分' },
-  { id: 3, name: 'ゲームセンター JOYPOLIS', distance: '渋谷駅徒歩2分' },
-  { id: 4, name: 'ボウリング場 STRIKE', distance: '渋谷駅徒歩10分' },
-  { id: 5, name: 'くそなげーーーーーーーなまえ', distance: '渋谷駅徒歩3分' },
-])
+const router = useRouter()
+const roomStore = useRoomStore()
+const voteStore = useVoteStore()
+
+const locations = ref<Location[]>([])
+
+// voteStoreに場所の優先順位を更新する関数
+const updatePlacePreferences = () => {
+  if (locations.value.length > 0) {
+    const placeVotes: PlaceVoteData[] = locations.value.map((location, index) => ({
+      id: location.id,
+      rank: index + 1,
+    }))
+    voteStore.setPlacePreferences(placeVotes)
+    console.log('placePreferences updated:', placeVotes)
+    console.log('canSubmitVote:', voteStore.canSubmitVote)
+  }
+}
+
+// roomStoreから候補地データを取得してlocationsを初期化
+onMounted(() => {
+  if (roomStore.currentRoomData?.place_options) {
+    locations.value = roomStore.currentRoomData.place_options.map((place) => ({
+      id: place.id,
+      name: place.name,
+      address: place.address,
+    }))
+    // 初期化時にvoteStoreにも設定
+    updatePlacePreferences()
+  }
+})
+
+// roomStoreのデータが変更された時に再初期化
+watch(
+  () => roomStore.currentRoomData,
+  (newData) => {
+    if (newData?.place_options) {
+      locations.value = newData.place_options.map((place) => ({
+        id: place.id,
+        name: place.name,
+        address: place.address,
+      }))
+      // データ更新時にvoteStoreにも設定
+      updatePlacePreferences()
+    }
+  },
+  { immediate: true },
+)
+
+// locationsが変更された時にvoteStoreも更新
+watch(
+  locations,
+  () => {
+    updatePlacePreferences()
+  },
+  { deep: true },
+)
+
+// 投票送信処理
+const handleSubmitVote = async () => {
+  try {
+    // 投票を送信（placePreferencesは既にwatchで設定済み）
+    const roomId = router.currentRoute.value.params.room_id as string
+    await voteStore.submitVoteData(roomId)
+
+    // 投票成功後は結果画面に遷移
+    router.push(`/rooms/${roomId}/vote-results`)
+  } catch (error) {
+    console.error('投票送信エラー:', error)
+    // エラーはvoteStoreで管理されているため、ここでは特別な処理は不要
+  }
+}
 
 // ドラッグアンドドロップの状態管理
 const draggedIndex = ref<number | null>(null)
@@ -201,6 +313,8 @@ const moveItem = (index: number, direction: 'up' | 'down') => {
       newLocations[index],
     ]
     locations.value = newLocations
+    // 並び替え後にvoteStoreを更新
+    updatePlacePreferences()
     console.log(`Moved item from index ${index} to ${targetIndex}`)
   }
 }
@@ -254,6 +368,8 @@ const handleDrop = (dropIndex: number, event: DragEvent) => {
 
   if (draggedIndex.value !== null && draggedIndex.value !== dropIndex) {
     locations.value = [...displayLocations.value]
+    // ドロップ後にvoteStoreを更新
+    updatePlacePreferences()
   }
 
   draggedIndex.value = null
@@ -333,6 +449,8 @@ const handleTouchEnd = (event: TouchEvent) => {
   // ドロップ処理
   if (dragOverIndex.value !== null && draggedIndex.value !== dragOverIndex.value) {
     locations.value = [...displayLocations.value]
+    // タッチ終了後にvoteStoreを更新
+    updatePlacePreferences()
   }
 
   // bodyのスクロールを復元

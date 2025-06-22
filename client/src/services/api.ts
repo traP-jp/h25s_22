@@ -6,6 +6,8 @@ import type {
   NewCreateRoomRequest,
   NewCreateRoomResponse,
   GetRoomResponse,
+  PostVoteRequest,
+  PostVoteResponse,
 } from './types'
 
 const API_BASE_URL = 'https://h25s-22-backend.trap.show/api/v1'
@@ -115,6 +117,39 @@ export const getRoomDetails = async (roomId: string): Promise<GetRoomResponse> =
     return data
   } catch (error) {
     console.error('Get room details API error:', error)
+    throw error
+  }
+}
+
+// 投票API
+export const submitVote = async (voteData: PostVoteRequest): Promise<PostVoteResponse> => {
+  try {
+    const url = `${API_BASE_URL}/room/vote`
+    console.log('投票リクエストURL:', url)
+    console.log('投票データ:', voteData)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(voteData),
+    })
+
+    console.log('投票レスポンスステータス:', response.status)
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const responseText = await response.text()
+    console.log('投票レスポンス生データ:', responseText)
+
+    // サーバーからは直接userIDが返されるので、オブジェクトに包む
+    const userID = JSON.parse(responseText)
+    return { userID }
+  } catch (error) {
+    console.error('Vote submission API error:', error)
     throw error
   }
 }

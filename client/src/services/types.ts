@@ -87,3 +87,20 @@ export interface GetRoomResponse {
   time_options: ReturnTimeOption[]
   place_options: ReturnPlaceOption[]
 }
+
+// Vote関連のAPI型定義
+export interface PlaceVoteData {
+  id: string
+  rank: number
+}
+
+export interface PostVoteRequest {
+  roomID: string
+  name: string
+  timeId: string[]
+  placeData: PlaceVoteData[]
+}
+
+export interface PostVoteResponse {
+  userID: string
+}

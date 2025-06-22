@@ -3,12 +3,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
 import BasicButton from '@/components/BasicButton.vue'
+import BasicInput from '@/components/BasicInput.vue'
 import type { PlaceSearchResult } from '@/services/types'
-import { useRoomStore } from '@/stores/room'
+import { useRoomStore, useVoteStore } from '@/stores'
 
 const route = useRoute()
 const router = useRouter()
 const roomStore = useRoomStore()
+const voteStore = useVoteStore()
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY || 'MY_API_KEY'
 
@@ -102,9 +104,15 @@ const fetchRoomData = async () => {
 }
 
 const nextPage = () => {
-  // 次のページ（投票画面）への遷移処理
+  // ユーザー名のチェック
+  if (!voteStore.userName.trim()) {
+    alert('お名前を入力してください。')
+    return
+  }
+
+  // 次のページ（時間選択）への遷移処理
   const roomId = route.params.room_id as string
-  router.push(`/rooms/${roomId}/reorder-by-preference`)
+  router.push(`/rooms/${roomId}/choose-time`)
 }
 
 onMounted(() => {
@@ -123,6 +131,16 @@ onMounted(() => {
           <div v-if="roomStore.currentRoomData" class="mb-4">
             <h2 class="text-sm font-medium text-gray-700 mb-2">ルーム名</h2>
             <p class="text-gray-900 font-semibold">{{ roomStore.currentRoomData.name }}</p>
+          </div>
+
+          <!-- ユーザー名入力 -->
+          <div class="mb-4">
+            <h2 class="text-sm font-medium text-gray-700 mb-2">お名前</h2>
+            <BasicInput
+              v-model="voteStore.userName"
+              placeholder="投票者の名前を入力してください"
+              :disabled="roomStore.isLoading"
+            />
           </div>
 
           <div class="h-72 w-full rounded-lg bg-gray-200">
@@ -200,13 +218,18 @@ onMounted(() => {
 
         <footer class="shrink-0 bg-white px-12 pt-9 pb-20">
           <BasicButton
-            :text="roomStore.isLoading ? '読み込み中...' : '投票する'"
+            :text="roomStore.isLoading ? '読み込み中...' : '投票を開始 →'"
             variant="primary"
             size="large"
             right-icon="arrow-right"
             @click="nextPage"
             class="h-12 w-full"
-            :disabled="roomStore.isLoading || roomStore.error !== null || places.length === 0"
+            :disabled="
+              roomStore.isLoading ||
+              roomStore.error !== null ||
+              places.length === 0 ||
+              !voteStore.userName.trim()
+            "
           />
         </footer>
       </main>
