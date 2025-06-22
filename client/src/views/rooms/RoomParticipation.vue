@@ -30,6 +30,9 @@ async function participate(roomid: string) {
   try {
     // GetRoom APIを叩いてルームの存在を確認
     const roomData = await getRoomDetails(roomid.trim())
+    if (!roomData) {
+      throw new Error('ルームが見つかりません。')
+    }
 
     // APIが成功した場合、場所選択画面に遷移
     router.push(`/rooms/${roomid.trim()}/places`)

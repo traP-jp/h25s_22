@@ -6,7 +6,7 @@ import type {
   NewCreateRoomRequest,
   TimeOption as ApiTimeOption,
 } from '@/services/types'
-import { searchNearbyPlaces, createRoom, createNewRoom as apiCreateNewRoom } from '@/services/api'
+import { searchNearbyPlaces, createNewRoom as apiCreateNewRoom } from '@/services/api'
 
 export const useRoomCreationStore = defineStore('roomCreation', () => {
   // 状態
@@ -131,7 +131,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
   }
 
   // アクション - ルーム作成
-  const createNewRoom = async (description: string = '') => {
+  const createNewRoom = async () => {
     if (!canProceedToDecide.value) {
       error.value = 'ルーム作成に必要な情報が不足しています'
       return null
