@@ -104,22 +104,21 @@
         <!-- ルーム作成ボタン -->
         <div class="shrink-0 px-12 py-4 bg-white">
           <!-- アクションボタン -->
-          <div class="flex gap-2">
-            <button
+          <div class="flex items-center justify-center space-x-4">
+            <BasicButton
+              text="戻る"
+              variant="secondary"
+              size="medium"
               @click="goBackToPlace"
-              class="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
               :disabled="isCreating"
-            >
-              戻る
-            </button>
-            <button
+            />
+            <BasicButton
+              :text="isCreating ? '作成中...' : 'ルーム作成'"
+              variant="primary"
+              size="medium"
               @click="handleCreateRoom"
-              class="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="isCreating || roomCreationStore.suggestedPlaces.length === 0"
-            >
-              <span v-if="isCreating">作成中...</span>
-              <span v-else>ルームを作成</span>
-            </button>
+            />
           </div>
 
           <!-- エラー表示 -->
@@ -140,6 +139,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { GoogleMap, Marker } from 'vue3-google-map'
 import { useRoomCreationStore } from '@/stores'
+import BasicButton from '@/components/BasicButton.vue'
 import type { PlaceSearchResult } from '@/services/types'
 
 const router = useRouter()
