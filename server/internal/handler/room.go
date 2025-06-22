@@ -93,8 +93,8 @@ func (h *Handler) GetPlaceDetail(c echo.Context, client maps.Client, googlePlace
 
 // Room作成リクエスト
 func (h *Handler) CreateRoom(c echo.Context) error {
-	var req CreateRoomRequest
-	if err := c.Bind(&req); err != nil { //リクエストをバインド
+	req := &CreateRoomRequest{}
+	if err := c.Bind(req); err != nil { //リクエストをバインド
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 	}
 	roomID, err := h.repo.CreateRoom(c.Request().Context(), repository.CreateRoomParams{ // ルームを作成
