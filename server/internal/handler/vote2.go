@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func (h *Handler) ChangeVote2(c echo.Context) error {
+func (h *Handler) ChangeVote(c echo.Context) error {
 	req := &repository.UpdateVoteReq{}
 	err := c.Bind(req)
 	if err != nil ||

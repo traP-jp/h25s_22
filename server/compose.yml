@@ -11,11 +11,12 @@ services:
       - .env
     environment:
       APP_ADDR: :8080
-      DB_USER: root
-      DB_PASS: pass
-      DB_HOST: db
-      DB_PORT: "3306"
-      DB_NAME: app
+      NS_MARIADB_USER: root
+      NS_MARIADB_PASS: pass
+      NS_MARIADB_HOSTNAME: db
+      NS_MARIADB_PORT: "3306"
+      NS_MARIADB_NAME: app
+      NS_MARIADB_DATABASE: db
     depends_on:
       db:
         condition: service_healthy
@@ -25,7 +26,7 @@ services:
           path: ./
 
   db:
-    image: mysql:latest
+    image: mariadb:latest
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: pass
