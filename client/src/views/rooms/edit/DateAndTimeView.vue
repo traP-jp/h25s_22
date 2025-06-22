@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoomCreationStore } from '@/stores'
 import type { DateTimeFormData } from '@/types'
+import BasicButton from '@/components/BasicButton.vue'
 
 const router = useRouter()
 const roomCreationStore = useRoomCreationStore()
@@ -52,24 +53,6 @@ const removeSchedule = (timeOptionId: string) => {
     <div
       class="flex h-[800px] w-[400px] flex-col overflow-hidden border border-gray-200 bg-white shadow-lg"
     >
-      <header
-        class="box-border flex h-10 w-full shrink-0 items-center justify-end border-b border-gray-200 bg-gray-50 px-5"
-      >
-        <svg
-          class="h-6 w-6"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
-        </svg>
-      </header>
 
       <div class="box-border w-full flex-grow overflow-y-auto px-12 pt-12">
         <div class="w-full">
@@ -116,18 +99,20 @@ const removeSchedule = (timeOptionId: string) => {
           </div>
 
           <div class="flex h-12 gap-3">
-            <button
+            <BasicButton
+              text="追加"
+              rightIcon="plus"
+              variant="secondary"
+              size="medium"
               @click="handleAdd"
-              class="box-border flex h-12 w-36 items-center justify-center rounded-md border border-blue-500 bg-white p-0 text-base font-semibold text-blue-500 transition-all hover:bg-blue-50"
-            >
-              追加 ＋
-            </button>
-            <button
+            />
+            <BasicButton
+              text="次へ"
+              rightIcon="arrow_foward_inv"
+              variant="primary"
+              size="medium"
               @click="handleNext"
-              class="box-border flex h-12 w-36 items-center justify-center rounded-md border border-transparent bg-blue-500 p-0 text-base font-semibold text-white transition-all hover:bg-blue-600"
-            >
-              次へ →
-            </button>
+            />
           </div>
 
           <div class="mt-8" v-if="roomCreationStore.timeOptions.length > 0">
