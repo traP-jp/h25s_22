@@ -25,7 +25,7 @@ type ChangeVoteRequest struct {
 }
 
 func (h *Handler) PostVote(c echo.Context) error {
-	getVote := GetVote{}
+	getVote := &GetVote{}
 	err := c.Bind(getVote)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("fatal err: %W", err))
