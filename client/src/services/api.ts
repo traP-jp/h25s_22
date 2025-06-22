@@ -8,6 +8,7 @@ import type {
   GetRoomResponse,
   PostVoteRequest,
   PostVoteResponse,
+  VoteResultResponse,
 } from './types'
 
 const API_BASE_URL = 'https://h25s-22-backend.trap.show/api/v1'
@@ -150,6 +151,34 @@ export const submitVote = async (voteData: PostVoteRequest): Promise<PostVoteRes
     return { userID }
   } catch (error) {
     console.error('Vote submission API error:', error)
+    throw error
+  }
+}
+
+// 投票結果取得API
+export const getVoteResults = async (roomId: string): Promise<VoteResultResponse> => {
+  try {
+    const url = `${API_BASE_URL}/room/vote/result/${roomId}`
+    console.log('投票結果取得リクエストURL:', url)
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('投票結果レスポンスステータス:', response.status)
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log('投票結果データ:', data)
+    return data
+  } catch (error) {
+    console.error('Vote results API error:', error)
     throw error
   }
 }

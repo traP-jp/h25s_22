@@ -1,60 +1,116 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { getVoteResults, getRoomDetails } from '@/services/api'
+import type { VoteResultResponse, GetRoomResponse } from '@/services/types'
 
-// --- ダミーデータ ---
-const eventDetails = ref({
-  title: '渋谷でランチ会',
-  date: '2025年6月26日',
-  participants: 4,
-  responded: 4,
-})
+const route = useRoute()
 
-const timeSlots = ref([
-  {
-    id: 1,
-    timeRange: '6/26 12:00-13:00',
-    voters: ['田中さん', '佐藤さん', '山田さん'],
-    voteCount: 3,
-    percentage: 75,
-  },
-  {
-    id: 2,
-    timeRange: '6/26 13:00-14:00',
-    voters: ['鈴木さん', '高橋さん'],
-    voteCount: 2,
-    percentage: 50,
-  },
-  { id: 3, timeRange: '6/27 14:00-15:00', voters: ['伊藤さん'], voteCount: 1, percentage: 25 },
-  { id: 4, timeRange: '6/27 15:00-16:00', voters: ['渡辺さん'], voteCount: 1, percentage: 25 },
-  { id: 5, timeRange: '6/27 16:00-17:00', voters: ['山本さん'], voteCount: 1, percentage: 25 },
-])
-
-const placeRankings = ref([
-  { rank: 1, name: 'Italian Kitchen VANSAN 渋谷店' },
-  { rank: 2, name: '焼肉ホルモン 炭火や' },
-  { rank: 3, name: 'カフェ＆ダイニング BLUE' },
-  { rank: 4, name: '寿司 まさる' },
-  { rank: 5, name: '中華料理 泰興楼' },
-  { rank: 6, name: 'とんかつ まい泉' },
-  { rank: 7, name: 'ラーメン 一蘭 渋谷店' },
-  { rank: 8, name: '居酒屋 鳥貴族 渋谷店' },
-  { rank: 9, name: 'カレーの市民 アルバ 渋谷店' },
-  { rank: 10, name: 'ベーカリーカフェ パンの田島 渋谷店' },
-  { rank: 11, name: 'フレンチレストラン Le Pain Quotidien 渋谷店' },
-  { rank: 12, name: 'ベトナム料理 フォーガー 渋谷店' },
-  { rank: 13, name: '韓国料理 チーズタッカルビ 渋谷店' },
-  { rank: 14, name: 'タイ料理 サイアム 渋谷店' },
-  { rank: 15, name: 'インド料理 タージマハール 渋谷店' },
-  { rank: 16, name: 'メキシコ料理 タコス 渋谷店' },
-  { rank: 17, name: 'アメリカンダイナー ハンバーガー 渋谷店' },
-  { rank: 18, name: 'スペイン料理 パエリア 渋谷店' },
-  { rank: 19, name: 'ギリシャ料理 ムサカ 渋谷店' },
-  { rank: 20, name: 'ロシア料理 ボルシチ 渋谷店' },
-])
+// データの状態管理
+const loading = ref(true)
+const error = ref<string | null>(null)
+const voteResults = ref<VoteResultResponse | null>(null)
+const roomDetails = ref<GetRoomResponse | null>(null)
 
 // カードの開閉状態
 const isTimeCardOpen = ref(true)
 const isPlaceCardOpen = ref(true)
+
+// 計算されたプロパティ
+const eventDetails = computed(() => {
+  if (!roomDetails.value) return null
+
+  const totalParticipants =
+    voteResults.value?.time.reduce((total, timeSlot) => {
+      return Math.max(total, timeSlot.user.length)
+    }, 0) || 0
+
+  return {
+    title: roomDetails.value.name,
+    participants: totalParticipants,
+    responded: totalParticipants,
+  }
+})
+
+const timeSlots = computed(() => {
+  if (!voteResults.value) return []
+
+  const totalParticipants = voteResults.value.time.reduce((total, timeSlot) => {
+    return Math.max(total, timeSlot.user.length)
+  }, 1) // 0除算を避けるため最小1
+
+  return voteResults.value.time.map((timeResult, index) => ({
+    id: index + 1,
+    timeRange: `${formatDateTime(timeResult.startTime)} - ${formatTime(timeResult.endTime)}`,
+    voters: timeResult.user.map((user) => user.name),
+    voteCount: timeResult.user.length,
+    percentage: Math.round((timeResult.user.length / totalParticipants) * 100),
+  }))
+})
+
+const placeRankings = computed(() => {
+  if (!voteResults.value) return []
+
+  return voteResults.value.place
+    .sort((a, b) => b.point - a.point) // ポイントで降順ソート
+    .map((place, index) => ({
+      rank: index + 1,
+      name: place.placeName || `Place ${place.googlePlaceID}`,
+      point: place.point,
+    }))
+})
+
+// 日時フォーマット関数
+const formatDateTime = (dateTimeStr: string) => {
+  try {
+    const date = new Date(dateTimeStr)
+    return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+  } catch {
+    return dateTimeStr
+  }
+}
+
+const formatTime = (dateTimeStr: string) => {
+  try {
+    const date = new Date(dateTimeStr)
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+  } catch {
+    return dateTimeStr
+  }
+}
+
+// データ取得
+const fetchData = async () => {
+  try {
+    loading.value = true
+    error.value = null
+
+    const roomId = route.params.room_id as string
+    if (!roomId) {
+      throw new Error('ルームIDが指定されていません')
+    }
+
+    console.log('取得するルームID:', roomId) // デバッグ用
+
+    // 並行してデータを取得
+    const [resultsData, roomData] = await Promise.all([
+      getVoteResults(roomId),
+      getRoomDetails(roomId),
+    ])
+
+    voteResults.value = resultsData
+    roomDetails.value = roomData
+  } catch (err) {
+    console.error('データ取得エラー:', err)
+    error.value = err instanceof Error ? err.message : '投票結果の取得に失敗しました'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>
@@ -62,7 +118,44 @@ const isPlaceCardOpen = ref(true)
     <div
       class="flex h-[800px] w-[400px] flex-col overflow-hidden rounded-xl border bg-gray-50 shadow-lg"
     >
-      <main class="flex-grow p-6">
+      <!-- ローディング状態 -->
+      <div v-if="loading" class="flex flex-grow items-center justify-center">
+        <div class="text-center">
+          <div
+            class="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent mx-auto mb-4"
+          ></div>
+          <p class="text-gray-600">投票結果を取得中...</p>
+        </div>
+      </div>
+
+      <!-- エラー状態 -->
+      <div v-else-if="error" class="flex flex-grow items-center justify-center">
+        <div class="text-center">
+          <svg
+            class="h-12 w-12 text-red-500 mx-auto mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5C3.498 20.333 4.46 22 6 22z"
+            />
+          </svg>
+          <p class="text-red-600 mb-4">{{ error }}</p>
+          <button
+            @click="fetchData"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            再試行
+          </button>
+        </div>
+      </div>
+
+      <!-- メインコンテンツ -->
+      <main v-else-if="eventDetails && voteResults" class="flex-grow p-6">
         <div class="mb-6">
           <h1 class="text-2xl font-bold text-gray-800">{{ eventDetails.title }}</h1>
           <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
@@ -142,7 +235,10 @@ const isPlaceCardOpen = ref(true)
             :class="isTimeCardOpen ? 'max-h-[500px]' : 'max-h-0'"
           >
             <div class="border-t border-gray-200 p-4">
-              <div class="max-h-48 space-y-4 overflow-y-auto">
+              <div v-if="timeSlots.length === 0" class="text-center py-4 text-gray-500">
+                時間の投票結果がありません
+              </div>
+              <div v-else class="max-h-48 space-y-4 overflow-y-auto">
                 <div v-for="slot in timeSlots" :key="slot.id">
                   <div class="flex items-center justify-between text-sm">
                     <span class="font-semibold text-gray-700">{{ slot.timeRange }}</span>
@@ -216,20 +312,30 @@ const isPlaceCardOpen = ref(true)
             :class="isPlaceCardOpen ? 'max-h-[500px]' : 'max-h-0'"
           >
             <div class="border-t border-gray-200 p-4">
-              <div class="max-h-40 space-y-3 overflow-y-auto">
-                <div v-for="place in placeRankings" :key="place.rank" class="flex items-center">
-                  <div
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                    :class="{
-                      'bg-yellow-500': place.rank === 1,
-                      'bg-gray-400': place.rank === 2,
-                      'bg-yellow-700': place.rank === 3,
-                      'bg-gray-300': place.rank > 3,
-                    }"
-                  >
-                    {{ place.rank }}
+              <div v-if="placeRankings.length === 0" class="text-center py-4 text-gray-500">
+                場所の投票結果がありません
+              </div>
+              <div v-else class="max-h-40 space-y-3 overflow-y-auto">
+                <div
+                  v-for="place in placeRankings"
+                  :key="place.rank"
+                  class="flex items-center justify-between"
+                >
+                  <div class="flex items-center">
+                    <div
+                      class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                      :class="{
+                        'bg-yellow-500': place.rank === 1,
+                        'bg-gray-400': place.rank === 2,
+                        'bg-yellow-700': place.rank === 3,
+                        'bg-gray-300': place.rank > 3,
+                      }"
+                    >
+                      {{ place.rank }}
+                    </div>
+                    <span class="ml-4 font-medium text-gray-700">{{ place.name }}</span>
                   </div>
-                  <span class="ml-4 font-medium text-gray-700">{{ place.name }}</span>
+                  <span class="text-sm text-gray-500 font-medium">{{ place.point }}pt</span>
                 </div>
               </div>
             </div>

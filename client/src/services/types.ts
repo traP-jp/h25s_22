@@ -104,3 +104,26 @@ export interface PostVoteRequest {
 export interface PostVoteResponse {
   userID: string
 }
+
+// 投票結果関連の型定義
+export interface UserNameID {
+  name: string
+  userID: string
+}
+
+export interface TimeResult {
+  startTime: string
+  endTime: string
+  user: UserNameID[]
+}
+
+export interface PlaceResult {
+  googlePlaceID: string
+  placeName: string
+  point: number
+}
+
+export interface VoteResultResponse {
+  place: PlaceResult[]
+  time: TimeResult[]
+}
