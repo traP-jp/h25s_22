@@ -60,7 +60,7 @@ func (r *Repository) CreateVote(ctx context.Context, param CreateVoteReq) (uuid.
 	return userID, nil
 }
 
-func (r *Repository) UpdateVote(ctx context.Context, param UpdateVoteReq) error {
+func (r *Repository) UpdateVote(ctx context.Context, param *UpdateVoteReq) error {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("faild start transaction: %w", err)
