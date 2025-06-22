@@ -30,7 +30,7 @@ import BasicButton from '@/components/BasicButton.vue'
           <BasicButton
             @click="goTovotepage"
             text="ルームに参加"
-            variant="secondery"
+            variant="secondary"
             size="large"
             leftIcon="Door_open"
           />
