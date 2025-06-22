@@ -14,7 +14,7 @@ type GetVote struct{
 	RoomID uuid.UUID `json:"roomID"`
 	Name string	`json:"name"`
 	TimeID []uuid.UUID	`json:"timeId"`
-	PlaceData []repository.PlaceData `json:"placeData`
+	PlaceData []repository.PlaceData `json:"placeData"`
 
 }
 func (h *Handler) PostVote(c echo.Context) error {
