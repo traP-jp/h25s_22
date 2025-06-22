@@ -37,7 +37,7 @@ func (h *Handler) PostVote(c echo.Context) error {
 	})
 	h.repo.CreateTimeVotes(context.Background(), timeVotes)
 
-	placeVotes := lo.Map(getVote.placeData, func(x repository.PlaceData, index int)repository.CreatePlaceVoteParams{
+	placeVotes := lo.Map(getVote.PlaceData, func(x repository.PlaceData, index int)repository.CreatePlaceVoteParams{
 		return repository.CreatePlaceVoteParams{
 			UserID: userID,
 			PlaceID:x.ID,
