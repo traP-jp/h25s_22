@@ -26,7 +26,7 @@ const handleLocationTypeChange = (value: string) => {
 const goNext = async () => {
   // ルーム名をストアに保存
   roomCreationStore.setRoomTitle(roomName.value)
-  
+
   // 設定をストアに保存
   roomCreationStore.updatePlaceSearchSettings({
     genre: genre.value,
@@ -59,10 +59,7 @@ const goNext = async () => {
       <div class="w-75 flex flex-col gap-3">
         <div class="w-75 size-18 flex flex-col gap-2">
           <div>ルーム名 <span class="text-red-500">*</span></div>
-          <BasicInput
-            v-model="roomName"
-            placeholder="ルーム名を入力してください"
-          />
+          <BasicInput v-model="roomName" placeholder="ルーム名を入力してください" />
         </div>
 
         <div class="w-75 size-18 flex flex-col gap-2">
@@ -128,7 +125,12 @@ const goNext = async () => {
         text="次へ"
         right-icon="arrow_foward_inv"
         @click="goNext"
-        :disabled="roomCreationStore.isLoading || !roomName.trim() || !genre || (!useCurrentLocation && !standardPlace)"
+        :disabled="
+          roomCreationStore.isLoading ||
+          !roomName.trim() ||
+          !genre ||
+          (!useCurrentLocation && !standardPlace)
+        "
       />
     </div>
   </div>

@@ -151,10 +151,9 @@ const isCreating = ref(false)
 const API_KEY =
   import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBCTIIJoLo5Qj5pWNGFQ-UwP5F7Bq1qhYo'
 
-// 地図の中心とズームレベルを候補場所から計算
 const mapCenter = computed(() => {
   if (roomCreationStore.suggestedPlaces.length === 0) {
-    return { lat: 35.68, lng: 139.73 } // デフォルト（東京）
+    return { lat: 35.68, lng: 139.73 }
   }
 
   const places = roomCreationStore.suggestedPlaces
