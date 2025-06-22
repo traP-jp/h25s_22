@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useRoomCreationStore } from '@/stores'
 import type { DateTimeFormData } from '@/types'
 import BasicButton from '@/components/BasicButton.vue'
+import BasicInput from '@/components/BasicInput.vue'
 
 const router = useRouter()
 const roomCreationStore = useRoomCreationStore()
@@ -54,47 +55,24 @@ const removeSchedule = (timeOptionId: string) => {
       <h1 class="mb-4 h-9 text-xl font-medium leading-9">日付を入力</h1>
 
       <div class="mb-3 w-full">
-        <label for="date-input" class="mb-2 block h-5 text-sm font-medium leading-5">日付</label>
-        <input
-          type="date"
-          id="date-input"
-          v-model="selectedDate"
-          required
-          class="box-border h-10 w-full rounded-md border border-gray-300 px-3 text-base"
-        />
+        <BasicInput id="date-input" v-model="selectedDate" label="日付" type="date" size="large" />
       </div>
 
       <div class="mb-9 flex gap-3">
-        <div class="w-full">
-          <label for="start-time" class="mb-2 block h-5 text-sm font-medium leading-5"
-            >開始時刻</label
-          >
-          <input
-            type="time"
-            id="start-time"
-            v-model="startTime"
-            required
-            class="box-border h-10 w-full rounded-md border border-gray-300 px-3 text-base"
-          />
-        </div>
-        <div class="w-full">
-          <label for="end-time" class="mb-2 block h-5 text-sm font-medium leading-5"
-            >終了時刻</label
-          >
-          <input
-            type="time"
-            id="end-time"
-            v-model="endTime"
-            required
-            class="box-border h-10 w-full rounded-md border border-gray-300 px-3 text-base"
-          />
-        </div>
+        <BasicInput
+          id="start-time"
+          v-model="startTime"
+          label="開始時刻"
+          type="time"
+          size="medium"
+        />
+        <BasicInput id="end-time" v-model="endTime" label="終了時刻" type="time" size="medium" />
       </div>
 
       <div class="flex h-12 gap-3">
         <BasicButton
           text="追加"
-          rightIcon="plus"
+          right-icon="plus"
           variant="secondary"
           size="medium"
           @click="handleAdd"
@@ -102,7 +80,7 @@ const removeSchedule = (timeOptionId: string) => {
         />
         <BasicButton
           text="次へ"
-          rightIcon="arrow_foward_inv"
+          right-icon="arrow_foward_inv"
           variant="primary"
           size="medium"
           @click="handleNext"
