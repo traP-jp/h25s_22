@@ -11,23 +11,25 @@ import (
 )
 
 type PlaceResult struct{
-	GooglePlaceID string    `db:"google_place_id"`
-	PlaceName string 
-	Point int 
+	GooglePlaceID string `db:"google_place_id" json:"googlePlaceID"`
+	PlaceName     string `json:"placeName"`
+	Point         int    `json:"point"`
+}
 
-}
 type UserNameID struct{
-	Name       string    `db:"name"`
-	UserID     uuid.UUID `db:"id"`	
+	Name   string    `db:"name" json:"name"`
+	UserID uuid.UUID `db:"id" json:"userID"`	
 }
+
 type TimeResult struct{
-	StartTime string `db:"start_time"`
-	EndTime   string `db:"end_time"`
-	user      []UserNameID
+	StartTime string       `db:"start_time" json:"startTime"`
+	EndTime   string       `db:"end_time" json:"endTime"`
+	User      []UserNameID `json:"user"`
 }
+
 type RoomResult struct{
-	place []PlaceResult
-	time  []TimeResult
+	Place []PlaceResult `json:"place"`
+	Time  []TimeResult  `json:"time"`
 }
 
 
@@ -42,13 +44,13 @@ func (r *Repository) GetRoomResult(ctx context.Context, roomID uuid.UUID) (*Room
 
 	for i, timeOption := range timeOptions{
 		userNameID := []UserNameID{}
-		if err := r.db.SelectContext(ctx, &userNameID, "SELECT timeVotes.user_id, users.Name FROM timeOptions INNER JOIN timeVotes.user_id ON users.id  WHERE time_id = ?", timeOption.ID); err != nil {
-			return nil, fmt.Errorf("select timeOptions by roomID: %w", err)
+		if err := r.db.SelectContext(ctx, &userNameID, "SELECT users.id, users.name FROM timeVotes INNER JOIN users ON timeVotes.user_id = users.id WHERE timeVotes.time_id = ?", timeOption.ID); err != nil {
+			return nil, fmt.Errorf("select users by timeID: %w", err)
 		}
 		timeResults[i] = TimeResult{
 			StartTime: timeOption.StartTime,
 			EndTime: timeOption.EndTime,
-			user : userNameID,
+			User: userNameID,
 		}
 	}
 	places := []*Place{}
@@ -62,10 +64,11 @@ func (r *Repository) GetRoomResult(ctx context.Context, roomID uuid.UUID) (*Room
 	for i, place := range places{
 		ranks := []int{}
 		if err := r.db.SelectContext(ctx, &ranks, "SELECT rank FROM placeVotes WHERE place_id = ?", place.ID); err != nil {
-			return nil, fmt.Errorf("select timeOptions by roomID: %w", err)
+			return nil, fmt.Errorf("select ranks by placeID: %w", err)
 		}
 		placeResults[i] = PlaceResult{
 			GooglePlaceID: place.GooglePlaceID,
+			PlaceName:     fmt.Sprintf("Place %s", place.GooglePlaceID), // TODO: 実際の場所名を取得
 			Point: lo.Reduce(ranks, func(agg int, item int, _ int) int{
 				 return agg + len(places) - item + 1
 			}, 0),
@@ -73,8 +76,8 @@ func (r *Repository) GetRoomResult(ctx context.Context, roomID uuid.UUID) (*Room
 	}
 
 	roomResults := &RoomResult{
-		place: placeResults,
-		time: timeResults,
+		Place: placeResults,
+		Time:  timeResults,
 	}
 
 	return roomResults, nil
