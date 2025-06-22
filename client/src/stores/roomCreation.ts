@@ -1,8 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { TimeOption, PlaceSearchSettings, DateTimeFormData } from '@/types'
-import type { PlaceSearchResult } from '@/services/types'
-import { searchNearbyPlaces, createRoom } from '@/services/api'
+import type {
+  PlaceSearchResult,
+  NewCreateRoomRequest,
+  TimeOption as ApiTimeOption,
+} from '@/services/types'
+import { searchNearbyPlaces, createRoom, createNewRoom as apiCreateNewRoom } from '@/services/api'
 
 export const useRoomCreationStore = defineStore('roomCreation', () => {
   // 状態
@@ -137,25 +141,39 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
     error.value = null
 
     try {
-      const roomData = {
+      // 新しいAPI仕様に合わせてデータを構築
+      const timeOptionsForApi: ApiTimeOption[] = timeOptions.value.map((option) => ({
+        start_time: `${option.date}T${option.startTime}:00`,
+        end_time: `${option.date}T${option.endTime}:00`,
+      }))
+
+      // 使用する場所のPlace IDを取得
+      const placesToUse =
+        selectedPlaces.value.length > 0 ? selectedPlaces.value : suggestedPlaces.value
+      const placeIds = placesToUse.map((place) => place.placeID)
+
+      // 中心位置として最初の場所を使用（または実際の中心位置を計算）
+      const centerPlaceId = placesToUse.length > 0 ? placesToUse[0].placeID : ''
+
+      const roomData: NewCreateRoomRequest = {
         name: roomTitle.value,
-        description,
-        timeOptions: timeOptions.value.map((option) => ({
-          date: option.date,
-          startTime: option.startTime,
-          endTime: option.endTime,
-        })),
-        places: selectedPlaces.value.length > 0 ? selectedPlaces.value : suggestedPlaces.value,
+        time_options: timeOptionsForApi,
+        place_options: placeIds,
+        center_place_id: centerPlaceId,
+        radius: placeSearchSettings.value.radius,
+        place_max: placeSearchSettings.value.maxCandidates,
       }
 
-      const result = await createRoom(roomData)
+      console.log('新しいAPI用ルームデータ:', roomData)
+      const result = await apiCreateNewRoom(roomData)
 
-      if (result.success) {
+      if (result.room_id) {
         // 成功時はデータをクリア
         resetAllData()
+        return { success: true, id: result.room_id, message: 'ルームが正常に作成されました' }
       }
 
-      return result
+      return { success: false, message: 'ルーム作成に失敗しました' }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'ルーム作成でエラーが発生しました'
       return null
