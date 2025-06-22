@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"time"
+	// "time"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -20,8 +20,8 @@ type (
 	ReturnTimeVote struct {
 		ID        uuid.UUID `db:"id"`
 		UserID    uuid.UUID `db:"user_id"`
-		StartTime time.Time `db:"start_time"`
-		EndTime   time.Time `db:"end_time"`
+		StartTime string `db:"start_time"`
+		EndTime   string `db:"end_time"`
 	}
 
 	CreateTimeVoteParams struct {

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"time"
+	// "time"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -21,8 +21,8 @@ type UserNameID struct{
 	UserID     uuid.UUID `db:"id"`	
 }
 type TimeResult struct{
-	StartTime time.Time `db:"start_time"`
-	EndTime   time.Time `db:"end_time"`
+	StartTime string `db:"start_time"`
+	EndTime   string `db:"end_time"`
 	user      []UserNameID
 }
 type RoomResult struct{

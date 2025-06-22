@@ -51,7 +51,7 @@ type (
 
 	GetRoomResponse struct {
 		RoomID       uuid.UUID           `json:"room_id"`       // ルームのID
-		Name		 string              `json:"name"`          // ルーム名
+		Name         string              `json:"name"`          // ルーム名
 		CenterPoint  string              `json:"center_point"`  // 中心位置のGoogle Place ID
 		Radius       int                 `json:"radius"`        // 半径
 		PlaceMax     int                 `json:"place_max"`     // 最大値
@@ -159,12 +159,12 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 		timeOptionID, err := h.repo.CreateTimeOption(c.Request().Context(), timeOptionWithID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to create time option",
-				"detail": err.Error(),
-				"index": fmt.Sprintf("%d", i),
+				"error":      "Failed to create time option",
+				"detail":     err.Error(),
+				"index":      fmt.Sprintf("%d", i),
 				"start_time": timeOptionWithID.StartTime,
-				"end_time": timeOptionWithID.EndTime,
-				"room_id": timeOptionWithID.RoomID.String(),
+				"end_time":   timeOptionWithID.EndTime,
+				"room_id":    timeOptionWithID.RoomID.String(),
 			})
 		}
 		createdTimeOptionIDs[i] = timeOptionID
@@ -175,11 +175,11 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 		placeOptionID, err := h.repo.CreatePlace(c.Request().Context(), placeOptionWithID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to create place option",
-				"detail": err.Error(),
-				"index": fmt.Sprintf("%d", i),
+				"error":           "Failed to create place option",
+				"detail":          err.Error(),
+				"index":           fmt.Sprintf("%d", i),
 				"google_place_id": placeOptionWithID.GooglePlaceID,
-				"room_id": placeOptionWithID.RoomID.String(),
+				"room_id":         placeOptionWithID.RoomID.String(),
 			})
 		}
 		createdPlaceOptionIDs[i] = placeOptionID
@@ -231,28 +231,28 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 func (h *Handler) GetRoom(c echo.Context) error {
 	roomIDStr := c.Param("roomID") // パラメータからroomIDを取得
 	roomID, err := uuid.Parse(roomIDStr)
-  if err != nil {
-      return c.JSON(http.StatusBadRequest, map[string]string{
-          "error": fmt.Sprintf("invalid room_id: %s", roomIDStr),
-          "received_param": roomIDStr,
-      })
-  }
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error":          fmt.Sprintf("invalid room_id: %s", roomIDStr),
+			"received_param": roomIDStr,
+		})
+	}
 	room, err := h.repo.GetRoom(c.Request().Context(), roomID) // ルーム情報を取得
-if err != nil {
-    return c.JSON(http.StatusNotFound, map[string]string{
-        "error": "room not found",
-        "room_id": roomID.String(),
-        "detail": err.Error(), // ← 実際のエラー内容を確認
-    })
-}
-  roomTimeOptions, err := h.repo.GetTimeOptionsByRoomID(c.Request().Context(), roomID)
-  if err != nil {
-      return c.JSON(http.StatusInternalServerError, map[string]string{
-          "error": "failed to retrieve time options",
-          "detail": err.Error(), // ← 実際のエラー内容を出力
-          "room_id": roomID.String(),
-      })
-  }
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error":   "room not found",
+			"room_id": roomID.String(),
+			"detail":  err.Error(), // ← 実際のエラー内容を確認
+		})
+	}
+	roomTimeOptions, err := h.repo.GetTimeOptionsByRoomID(c.Request().Context(), roomID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error":   "failed to retrieve time options",
+			"detail":  err.Error(), // ← 実際のエラー内容を出力
+			"room_id": roomID.String(),
+		})
+	}
 	roomPlaces, err := h.repo.GetPlacesByRoomID(c.Request().Context(), roomID) // ルームIDに紐づくplacesを取得
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve place options")
