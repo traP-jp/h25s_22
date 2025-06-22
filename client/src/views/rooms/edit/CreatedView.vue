@@ -43,7 +43,7 @@ function sharelink() {}
 </template>
 
 <style>
-.header{
+.header {
   font-weight: bold;
   font-size: large;
 }
