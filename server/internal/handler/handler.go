@@ -17,36 +17,26 @@ func New(repo *repository.Repository) *Handler {
 }
 
 func (h *Handler) SetupRoutes(api *echo.Group) {
+	// api is "/api/v1"
 	// ping API
 	pingAPI := api.Group("/ping")
 	{
 		pingAPI.GET("", h.Ping)
 	}
 
-	// user API
-	userAPI := api.Group("/users")
+	roomAPI := api.Group("/room")
 	{
-		userAPI.GET("", h.GetUsers)
-		userAPI.POST("", h.CreateUser)
-		userAPI.GET("/:userID", h.GetUser)
+		roomAPI.POST("/create", h.CreateRoom)
+		roomAPI.GET("/:roomID", h.GetRoom)
+		roomAPI.POST("/vote", h.PostVote)
+		roomAPI.POST("/vote/change", h.ChangeVote)
+		roomAPI.GET("/vote/result/:roomID", h.GetResult)
+
 	}
-
-	rootApi := api.Group("/api")
-	{	
-		roomAPI := rootApi.Group("/room")
-		{
-			roomAPI.POST("/create", h.CreateRoom)
-			roomAPI.GET("/:roomID", h.GetRoom)
-			roomAPI.POST("/vote", h.PostVote)
-			roomAPI.POST("/vote/change", h.ChangeVote)
-			roomAPI.GET("/vote/result/:roomID", h.GetResult)
-
-		}
-		placeAPI := rootApi.Group("/place")
-		{
-			placeAPI.GET("/nearSearch", h.GetSearch)
-			placeAPI.GET("/photo", h.GetPhoto)
-			placeAPI.GET("/:placeId",h.GetPlace)
-		}
-	}	
-}	
+	placeAPI := api.Group("/place")
+	{
+		placeAPI.GET("/nearSearch", h.GetSearch)
+		placeAPI.GET("/photo", h.GetPhoto)
+		placeAPI.GET("/:placeId", h.GetPlace)
+	}
+}

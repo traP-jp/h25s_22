@@ -1,18 +1,132 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { GoogleMap, Marker } from 'vue3-google-map'
+import BasicButton from '@/components/BasicButton.vue'
+
+const API_KEY = 'MY_API_KEY' //本来は環境変数などから取得する?
+// 地図関連のデータ,本来は取得したものによって設定
+const mapCenter = ref({ lat: 35.68, lng: 139.73 })
+const mapZoom = ref(12)
+
+const markers = ref([
+  { id: 'todai', position: { lat: 35.71267, lng: 139.76195 }, title: '東京大学' },
+  { id: 'tokodai', position: { lat: 35.6062, lng: 139.683 }, title: '東京科学大学' },
+  { id: 'waseda', position: { lat: 35.70902, lng: 139.71937 }, title: '早稲田大学' },
+])
+const nextPage = () => {
+  // 次のページへの遷移処理
+}
+// ダミーのデータ
+const places = ref([
+  {
+    id: 1,
+    name: '候補地A：東大前のカフェ',
+    address: '東京都文京区本郷',
+    votes: 5,
+    isVotedByMe: false,
+    image: '/dummy.png',
+  },
+  {
+    id: 2,
+    name: '候補地B：早稲田の定食屋',
+    address: '東京都新宿区早稲田',
+    votes: 12,
+    isVotedByMe: true,
+    image: '/dummy.png',
+  },
+  {
+    id: 3,
+    name: '候補地C：東工大近くの公園',
+    address: '東京都目黒区大岡山',
+    votes: 8,
+    isVotedByMe: false,
+    image: '/dummy.png',
+  },
+])
+
+const selectedPlaceId = ref(2)
+</script>
+
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-white rounded-lg shadow p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-4">場所一覧</h1>
-        <p class="text-gray-600">会議室ID: {{ $route.params.room_id }}</p>
-        <p class="text-gray-600">このページでは利用可能な場所を表示します。</p>
-      </div>
+  <div class="flex w-full items-start justify-center bg-gray-100 p-4">
+    <div
+      class="flex h-[800px] w-[400px] flex-col overflow-hidden rounded-xl border bg-white shadow-lg"
+    >
+      <header
+        class="flex h-10 w-full shrink-0 items-center justify-end border-b border-gray-200 bg-gray-50 px-4"
+      >
+        <svg
+          class="h-6 w-6 text-gray-700"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+          />
+        </svg>
+      </header>
+
+      <main class="flex h-full w-full flex-col">
+        <div class="shrink-0 px-12 pt-12">
+          <h1 class="mb-4 h-9 text-xl font-normal leading-9 text-gray-900">候補地を確認</h1>
+
+          <div class="h-72 w-full rounded-lg bg-gray-200">
+            <GoogleMap
+              :api-key="API_KEY"
+              :center="mapCenter"
+              :zoom="mapZoom"
+              style="width: 100%; height: 100%"
+              class="rounded-lg"
+            >
+              <Marker v-for="marker in markers" :key="marker.id" :options="marker" />
+            </GoogleMap>
+          </div>
+        </div>
+
+        <div class="mt-8 space-y-4 overflow-y-auto px-12 flex-12 min-h-0">
+          <div
+            v-for="place in places"
+            :key="place.id"
+            @click="selectedPlaceId = place.id"
+            class="flex min-h-20 w-full cursor-pointer items-start rounded-lg border bg-white p-3 shadow-sm transition-all"
+            :class="{
+              'border-green-500 shadow-md ring-1 ring-green-500': selectedPlaceId === place.id,
+              'border-gray-200': selectedPlaceId !== place.id,
+            }"
+          >
+            <img
+              :src="place.image || '/dummy.png'"
+              :alt="place.name"
+              class="h-16 w-16 shrink-0 rounded-md bg-gray-200 object-cover"
+            />
+            <div class="ml-3 flex-grow">
+              <p class="font-semibold text-gray-800">{{ place.name }}</p>
+              <p class="text-xs text-gray-500">{{ place.address }}</p>
+              <div class="mt-1 flex items-center">
+                <svg class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-grow"></div>
+
+        <footer class="shrink-0 bg-white px-12 pt-9 pb-20">
+          <BasicButton
+            text="投票する →"
+            variant="primary"
+            size="large"
+            right-icon="arrow-right"
+            @click="nextPage"
+            class="h-12 w-full"
+          />
+        </footer>
+      </main>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-// import { useRoute } from 'vue-router'
-
-// const route = useRoute()
-// 場所一覧ページのロジックをここに追加
-</script>
