@@ -7,6 +7,7 @@ import { searchNearbyPlaces, createRoom } from '@/services/api'
 export const useRoomCreationStore = defineStore('roomCreation', () => {
   // 状態
   const timeOptions = ref<TimeOption[]>([])
+  const roomTitle = ref<string>('')
   const placeSearchSettings = ref<PlaceSearchSettings>({
     genre: '',
     baseLocation: '',
@@ -21,6 +22,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
 
   // 計算されたプロパティ
   const hasTimeOptions = computed(() => timeOptions.value.length > 0)
+  const hasRoomTitle = computed(() => roomTitle.value.trim() !== '')
   const hasPlaceSettings = computed(() => {
     const settings = placeSearchSettings.value
     return (
@@ -30,7 +32,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
     )
   })
   const canProceedToDecide = computed(
-    () => hasTimeOptions.value && suggestedPlaces.value.length > 0,
+    () => hasTimeOptions.value && hasRoomTitle.value && suggestedPlaces.value.length > 0,
   )
 
   // アクション - 日時関連
@@ -53,6 +55,15 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
 
   const clearTimeOptions = () => {
     timeOptions.value = []
+  }
+
+  // アクション - ルームタイトル関連
+  const setRoomTitle = (title: string) => {
+    roomTitle.value = title
+  }
+
+  const clearRoomTitle = () => {
+    roomTitle.value = ''
   }
 
   // アクション - 場所設定関連
@@ -116,7 +127,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
   }
 
   // アクション - ルーム作成
-  const createNewRoom = async (roomName: string, description: string = '') => {
+  const createNewRoom = async (description: string = '') => {
     if (!canProceedToDecide.value) {
       error.value = 'ルーム作成に必要な情報が不足しています'
       return null
@@ -127,7 +138,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
 
     try {
       const roomData = {
-        name: roomName,
+        name: roomTitle.value,
         description,
         timeOptions: timeOptions.value.map((option) => ({
           date: option.date,
@@ -156,6 +167,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
   // アクション - データリセット
   const resetAllData = () => {
     clearTimeOptions()
+    clearRoomTitle()
     clearPlaceSearchSettings()
     suggestedPlaces.value = []
     clearSelectedPlaces()
@@ -165,6 +177,7 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
   return {
     // 状態
     timeOptions,
+    roomTitle,
     placeSearchSettings,
     suggestedPlaces,
     selectedPlaces,
@@ -172,12 +185,15 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
     error,
     // 計算されたプロパティ
     hasTimeOptions,
+    hasRoomTitle,
     hasPlaceSettings,
     canProceedToDecide,
     // アクション
     addTimeOption,
     removeTimeOption,
     clearTimeOptions,
+    setRoomTitle,
+    clearRoomTitle,
     updatePlaceSearchSettings,
     clearPlaceSearchSettings,
     searchPlaces,

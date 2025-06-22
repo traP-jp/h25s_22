@@ -9,6 +9,7 @@ const router = useRouter()
 const roomCreationStore = useRoomCreationStore()
 
 // フォームの状態
+const roomName = ref('')
 const genre = ref('')
 const standardPlace = ref('')
 const useCurrentLocation = ref(false)
@@ -23,6 +24,9 @@ const handleLocationTypeChange = (value: string) => {
 }
 
 const goNext = async () => {
+  // ルーム名をストアに保存
+  roomCreationStore.setRoomTitle(roomName.value)
+
   // 設定をストアに保存
   roomCreationStore.updatePlaceSearchSettings({
     genre: genre.value,
@@ -53,6 +57,11 @@ const goNext = async () => {
     <h1 class="header w-75 size-9">場所を設定</h1>
     <div class="w-75 flex flex-col gap-9">
       <div class="w-75 flex flex-col gap-3">
+        <div class="w-75 size-18 flex flex-col gap-2">
+          <div>ルーム名 <span class="text-red-500">*</span></div>
+          <BasicInput v-model="roomName" placeholder="ルーム名を入力してください" />
+        </div>
+
         <div class="w-75 size-18 flex flex-col gap-2">
           <div>ジャンル</div>
           <select v-model="genre" name="genre" class="inputform size-10 w-75">
@@ -116,7 +125,12 @@ const goNext = async () => {
         text="次へ"
         right-icon="arrow_foward_inv"
         @click="goNext"
-        :disabled="roomCreationStore.isLoading || !genre || (!useCurrentLocation && !standardPlace)"
+        :disabled="
+          roomCreationStore.isLoading ||
+          !roomName.trim() ||
+          !genre ||
+          (!useCurrentLocation && !standardPlace)
+        "
       />
     </div>
   </div>
