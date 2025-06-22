@@ -29,7 +29,7 @@ func (h *Handler) SetupRoutes(api *echo.Group) {
 		roomAPI.POST("/create", h.CreateRoom)
 		roomAPI.GET("/:roomID", h.GetRoom)
 		roomAPI.POST("/vote", h.PostVote)
-		roomAPI.POST("/vote/change", h.ChangeVote)
+		// roomAPI.POST("/vote/change", h.ChangeVote)
 		roomAPI.GET("/vote/result/:roomID", h.GetResult)
 
 	}
