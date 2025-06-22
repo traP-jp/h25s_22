@@ -1,6 +1,7 @@
 -- +goose Up
 CREATE TABLE IF NOT EXISTS `rooms` (
 	`id` CHAR(36) NOT NULL,
+	`name` VARCHAR(255) NOT NULL,
 	`place_max` INT,
 	`center_point` VARCHAR(255) NOT NULL,
 	`radius` INT NOT NULL,

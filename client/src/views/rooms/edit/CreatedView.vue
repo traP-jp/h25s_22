@@ -1,19 +1,34 @@
 <script setup lang="ts">
 // 作成完了ページのロジックをここに追加
 import BasicButton from '@/components/BasicButton.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-const room_id = ref('sampleID')
+const router = useRouter()
+const route = useRoute()
+const room_id = ref('')
+
+onMounted(() => {
+  const roomId = route.query.roomId as string
+  if (roomId) {
+    room_id.value = roomId
+  } else {
+    alert('ルームIDが見つかりません。')
+    router.push('/')
+  }
+})
 
 function idcopy(id: string) {
   navigator.clipboard.writeText(id)
 }
 
 function backhome() {
-  location.href = 'https://google.com'
+  router.push('/')
 }
 
-function sharelink() {}
+function sharelink(room_id: string) {
+  navigator.share({ title: 'ルームをシェア', url: `/rooms/${room_id}/room-participation` })
+}
 </script>
 
 <template>
@@ -35,7 +50,7 @@ function sharelink() {}
           text="リンクをシェア"
           variant="secondary"
           left-icon="link-variant"
-          @click="sharelink"
+          @click="sharelink(room_id)"
         />
       </div>
     </div>
