@@ -28,7 +28,7 @@ func (h *Handler) PostVote(c echo.Context) error {
 	getVote := GetVote{}
 	err := c.Bind(getVote)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "fatal err: %s", err)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("fatal err: %W", err))
 	}
 
 	userID, err := h.repo.CreateUser(context.Background(), repository.CreateUserParams{
