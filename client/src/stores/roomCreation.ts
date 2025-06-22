@@ -143,8 +143,8 @@ export const useRoomCreationStore = defineStore('roomCreation', () => {
     try {
       // 新しいAPI仕様に合わせてデータを構築
       const timeOptionsForApi: ApiTimeOption[] = timeOptions.value.map((option) => ({
-        start_time: `${option.date}T${option.startTime}:00`,
-        end_time: `${option.date}T${option.endTime}:00`,
+        start_time: `${option.date}T${option.startTime}:00Z`,
+        end_time: `${option.date}T${option.endTime}:00Z`,
       }))
 
       // 使用する場所のPlace IDを取得

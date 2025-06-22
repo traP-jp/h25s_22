@@ -221,9 +221,9 @@ const handleCreateRoom = async () => {
   try {
     const result = await roomCreationStore.createNewRoom()
 
-    if (result && result.success) {
+    if (result && result.success && result.id) {
       alert('ルームが作成されました！')
-      router.push('/rooms/edit/created')
+      router.push(`/rooms/edit/created?roomId=${result.id}`)
     } else {
       alert('ルームの作成に失敗しました。')
     }
