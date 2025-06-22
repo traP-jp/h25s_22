@@ -14,7 +14,10 @@ const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY || 'MY_API_KEY'
 
 // 地図関連のデータ
 const mapCenter = computed(() => {
-  if (!roomStore.currentRoomData?.place_options || roomStore.currentRoomData.place_options.length === 0) {
+  if (
+    !roomStore.currentRoomData?.place_options ||
+    roomStore.currentRoomData.place_options.length === 0
+  ) {
     return { lat: 35.68, lng: 139.73 }
   }
 
@@ -42,15 +45,17 @@ const markers = computed(() => {
 const places = computed<PlaceSearchResult[]>(() => {
   if (!roomStore.currentRoomData?.place_options) return []
 
-  return roomStore.currentRoomData.place_options.map((place): PlaceSearchResult => ({
-    name: place.name,
-    placeID: place.google_place_id,
-    location: place.location,
-    photoReference: place.photoReference,
-    priceLevel: place.priceLevel,
-    rating: place.rating,
-    address: place.address,
-  }))
+  return roomStore.currentRoomData.place_options.map(
+    (place): PlaceSearchResult => ({
+      name: place.name,
+      placeID: place.google_place_id,
+      location: place.location,
+      photoReference: place.photoReference,
+      priceLevel: place.priceLevel,
+      rating: place.rating,
+      address: place.address,
+    }),
+  )
 })
 
 const selectedPlaceId = ref('')
@@ -90,7 +95,6 @@ const fetchRoomData = async () => {
     if (data.place_options && data.place_options.length > 0) {
       selectedPlaceId.value = data.place_options[0].google_place_id
     }
-
   } catch (err) {
     console.error('ルーム情報の取得に失敗:', err)
     // エラーはstoreで管理されているので、ここでは何もしない
@@ -100,7 +104,7 @@ const fetchRoomData = async () => {
 const nextPage = () => {
   // 次のページ（投票画面）への遷移処理
   const roomId = route.params.room_id as string
-  router.push(`/rooms/${roomId}/vote`)
+  router.push(`/rooms/${roomId}/reorder-by-preference`)
 }
 
 onMounted(() => {
@@ -147,10 +151,7 @@ onMounted(() => {
           </div>
 
           <!-- 候補地が見つからない場合 -->
-          <div
-            v-else-if="places.length === 0"
-            class="text-center py-8 text-gray-500 text-sm"
-          >
+          <div v-else-if="places.length === 0" class="text-center py-8 text-gray-500 text-sm">
             候補地が見つかりませんでした。
           </div>
 
@@ -162,7 +163,8 @@ onMounted(() => {
               @click="selectedPlaceId = place.placeID"
               class="flex min-h-20 w-full cursor-pointer items-start rounded-lg border bg-white p-3 shadow-sm transition-all"
               :class="{
-                'border-green-500 shadow-md ring-1 ring-green-500': selectedPlaceId === place.placeID,
+                'border-green-500 shadow-md ring-1 ring-green-500':
+                  selectedPlaceId === place.placeID,
                 'border-gray-200': selectedPlaceId !== place.placeID,
               }"
             >

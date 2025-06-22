@@ -48,10 +48,10 @@ export const useRoomStore = defineStore('room', () => {
       isLoading.value = true
       error.value = null
       console.log('RoomStore - API呼び出し開始:', roomId)
-      
+
       const data = await getRoomDetails(roomId)
       console.log('RoomStore - API レスポンス:', data)
-      
+
       currentRoomData.value = data
       return data
     } catch (err) {
