@@ -8,7 +8,7 @@ import type {
   GetRoomResponse,
 } from './types'
 
-const API_BASE_URL = 'http://localhost:8080/api/v1'
+const API_BASE_URL = 'https://h25s-22-backend.trap.show/api/v1'
 
 // 場所検索API
 export const searchNearbyPlaces = async (
