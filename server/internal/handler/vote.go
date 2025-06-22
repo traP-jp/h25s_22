@@ -17,7 +17,7 @@ type GetVote struct{
 	PlaceData []repository.PlaceData `json:"placeData"`
 
 }
-func (h *Handler) PostVote(c echo.Context) error {
+func (h *Handler) PostVote2(c echo.Context) error {
 	getVote := GetVote{}
 	err := c.Bind(getVote)
 	if err != nil{
@@ -52,4 +52,18 @@ func (h *Handler) PostVote(c echo.Context) error {
 	
 
 	return c.JSON(http.StatusOK, userID)
+}
+
+func (h *Handler) GetResult(c echo.Context) error {
+	roomIDStr := c.Param("roomID")
+	roomID, err := uuid.Parse(roomIDStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
+	}
+	roomResult, err := h.repo.GetRoomResult(context.Background(),roomID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,"fatal err: %s" , err)
+	}
+
+	return c.JSON(http.StatusOK, roomResult)
 }
