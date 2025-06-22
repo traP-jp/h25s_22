@@ -15,6 +15,7 @@ type (
 		EndTime   time.Time `json:"end_time"`   // 終了時間
 	}
 	CreateRoomRequest struct {
+		Name          string       `json:"name"`            // ルーム名
 		TimeOptions   []TimeOption `json:"time_options"`    // 時間候補
 		PlaceOptions  []string     `json:"place_options"`   // 場所候補（GooglePlaceIDの配列）
 		CenterPlaceID string       `json:"center_place_id"` // 中心位置(GooglePlaceID)
@@ -40,6 +41,7 @@ type (
 
 	GetRoomResponse struct {
 		RoomID       uuid.UUID           `json:"room_id"`       // ルームのID
+		Name		 string              `json:"name"`          // ルーム名
 		CenterPoint  string              `json:"center_point"`  // 中心位置のGoogle Place ID
 		Radius       int                 `json:"radius"`        // 半径
 		PlaceMax     int                 `json:"place_max"`     // 最大値
@@ -55,6 +57,7 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 	}
 	roomID, err := h.repo.CreateRoom(c.Request().Context(), repository.CreateRoomParams{ // ルームを作成
+		Name:        req.Name,
 		PlaceMax:    req.PlaceMax,
 		CenterPoint: req.CenterPlaceID,
 		Radius:      req.Radius,
@@ -130,6 +133,7 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, res)
 }
+
 func (h *Handler) GetRoom(c echo.Context) error {
 	roomIDStr := c.Param("room_id") // パラメータからroom_idを取得
 	roomID, err := uuid.Parse(roomIDStr)
@@ -166,6 +170,7 @@ func (h *Handler) GetRoom(c echo.Context) error {
 	}
 	res := GetRoomResponse{ // レスポンスの構築
 		RoomID:       room.ID,
+		Name:         room.Name,
 		CenterPoint:  room.CenterPoint,
 		Radius:       room.Radius,
 		PlaceMax:     room.PlaceMax,
