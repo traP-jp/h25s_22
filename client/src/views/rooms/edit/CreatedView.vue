@@ -14,7 +14,7 @@ function backhome() {
 }
 
 function sharelink(room_id: string) {
-  navigator.share({title: "ルームをシェア", url: `/rooms/${room_id}/room-participation`})
+  navigator.share({ title: 'ルームをシェア', url: `/rooms/${room_id}/room-participation` })
 }
 </script>
 

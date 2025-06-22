@@ -7,8 +7,9 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const path = ref(route.path)
 const room_id = ref(path)
-onMounted (() => { room_id.value = room_id.value.replace("/room-participation", "")
- room_id.value = room_id.value.replace("/rooms/", "")
+onMounted(() => {
+  room_id.value = room_id.value.replace('/room-participation', '')
+  room_id.value = room_id.value.replace('/rooms/', '')
 })
 
 function participate(roomid: string) {
