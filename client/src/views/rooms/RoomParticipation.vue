@@ -10,6 +10,9 @@ const room_id = ref(path)
 onMounted(() => {
   room_id.value = room_id.value.replace('/room-participation', '')
   room_id.value = room_id.value.replace('/rooms/', '')
+  if (room_id.value === 'Default') {
+    room_id.value = ''
+  }
 })
 
 function participate(roomid: string) {
