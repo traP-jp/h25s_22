@@ -15,8 +15,8 @@ services:
       NS_MARIADB_PASS: pass
       NS_MARIADB_HOSTNAME: db
       NS_MARIADB_PORT: "3306"
-      NS_MARIADB_NAME: app
-      NS_MARIADB_DATABASE: db
+      NS_MARIADB_DATABASE: app
+      MYSQL_ROOT_PASSWORD: pass
     depends_on:
       db:
         condition: service_healthy
@@ -26,7 +26,7 @@ services:
           path: ./
 
   db:
-    image: mysql:latest
+    image: mariadb:10.11
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MARIADB_ROOT_PASSWORD: pass
